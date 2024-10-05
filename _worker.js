@@ -1,25 +1,25 @@
-/**
-* @ts-nocheck   <!--GAMFC-->version base on commit 43fad05dcdae3b723c53c226f8181fc5bd47223e, time is 2023-06-22 15:20:02 UTC<!--GAMFC-END-->.
-* Last Update: 4:20 UTC - Sunday, 29 September 2024, By @Sahar-KM , @Diana-Cl , Nesa @EEvanescence
-* Many thanks to github.com/bia-pain-bache
-*/
+// @ts-nocheck
+// <!--GAMFC-->version base on commit 43fad05dcdae3b723c53c226f8181fc5bd47223e, time is 2023-06-22 15:20:02 UTC<!--GAMFC-END-->.
+// @ts-ignore
+// https://github.com/bia-pain-bache/BPB-Worker-Panel
+
 import { connect } from 'cloudflare:sockets';
+
 // How to generate your own UUID:
 // https://www.uuidgenerator.net/
 let userID = '89b3cbba-e6ac-485a-9481-976a0415eab9';
 
-//Find proxyIP : https://github.com/NiREvil/vless/blob/main/sub/ProxyIP.md
-//Find proxyIP : https://www.nslookup.io/domains/ipdb.rr.nu/dns-records/
-const proxyIPs= ['bpb.radically.pro']; // OR use ['bpb.radically.pro', 'turk.radicalization.ir', 'bpb.yousef.isegaro.com', 'proxyip.digitalocean.hw.090227.xyz'];
+// https://www.nslookup.io/domains/bpb.yousef.isegaro.com/dns-records/
+const proxyIPs= ['bpb.yousef.isegaro.com'];
 const defaultHttpPorts = ['80', '8080', '2052', '2082', '2086', '2095', '8880'];
 const defaultHttpsPorts = ['443', '8443', '2053', '2083', '2087', '2096'];
 let proxyIP = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
 let dohURL = 'https://cloudflare-dns.com/dns-query';
-let trojanPassword = `REvil`;
+let trojanPassword = `bpb-trojan`;
 // https://emn178.github.io/online-tools/sha224.html
 // https://www.atatus.com/tools/sha224-to-hash
-let hashPassword = '6dfd0e8e67ad3230498f80938cb924bc767b7db65eb4c9545fbe4ad7';
-let panelVersion = 'V2.6';
+let hashPassword = 'b5d0a5f7ff7aac227bc68b55ae713131ffdf605ca0da52cce182d513';
+let panelVersion = '2.6.4';
 
 if (!isValidUUID(userID)) throw new Error(`Invalid UUID: ${userID}`);
 if (!isValidSHA224(hashPassword)) throw new Error(`Invalid Hash password: ${hashPassword}`);
@@ -89,7 +89,7 @@ export default {
                                 headers: {
                                     'Content-Type': 'application/json;charset=utf-8',
                                     'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-                                    'Surrogate-Control': 'no-store'
+                                    'CDN-Cache-Control': 'no-store'
                                 }
                             });                            
                         }
@@ -101,7 +101,7 @@ export default {
                                 headers: {
                                     'Content-Type': 'application/json;charset=utf-8',
                                     'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-                                    'Surrogate-Control': 'no-store'
+                                    'CDN-Cache-Control': 'no-store'
                                 }
                             });                            
                         }
@@ -112,7 +112,7 @@ export default {
                             headers: {
                                 'Content-Type': 'text/plain;charset=utf-8',
                                 'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-                                'Surrogate-Control': 'no-store'
+                                'CDN-Cache-Control': 'no-store'
                             }
                         });                        
 
@@ -120,14 +120,14 @@ export default {
   
                         let fragConfigs = client === 'hiddify'
                             ? await getSingboxConfig(env, host, client, false, true)
-                            : (await getFragmentConfigs(env, host));
+                            : (await getXrayFragmentConfigs(env, host));
 
                         return new Response(JSON.stringify(fragConfigs, null, 4), { 
                             status: 200,
                             headers: {
                                 'Content-Type': 'application/json;charset=utf-8',
                                 'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-                                'Surrogate-Control': 'no-store'
+                                'CDN-Cache-Control': 'no-store'
                             }
                         });
 
@@ -140,7 +140,7 @@ export default {
                                 headers: {
                                     'Content-Type': 'application/json;charset=utf-8',
                                     'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-                                    'Surrogate-Control': 'no-store'
+                                    'CDN-Cache-Control': 'no-store'
                                 }
                             });                            
                         }
@@ -152,7 +152,7 @@ export default {
                                 headers: {
                                     'Content-Type': 'application/json;charset=utf-8',
                                     'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-                                    'Surrogate-Control': 'no-store'
+                                    'CDN-Cache-Control': 'no-store'
                                 }
                             });                            
                         }
@@ -163,7 +163,7 @@ export default {
                             headers: {
                                 'Content-Type': 'application/json;charset=utf-8',
                                 'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-                                'Surrogate-Control': 'no-store'
+                                'CDN-Cache-Control': 'no-store'
                             }
                         });
 
@@ -296,11 +296,10 @@ export default {
                 return url.pathname.startsWith('/tr') ? await trojanOverWSHandler(request) : await vlessOverWSHandler(request);
             }
         } catch (err) {
-            /** @type {Error} */ let e = err;
-            const errorPage = renderErrorPage('Something went wrong!', e.message.toString(), false);
+            const errorPage = renderErrorPage('Something went wrong!', err, false);
             return new Response(errorPage, { status: 200, headers: {'Content-Type': 'text/html'}});
         }
-    },
+    }
 };
 
 /**
@@ -1128,10 +1127,10 @@ function generateRemark(index, port, address, cleanIPs, protocol, configType) {
     const type = configType ? ` ${configType}` : '';
 
     cleanIPs.includes(address)
-        ? addressType = 'CLEAN IP'
-        : addressType = isDomain(address) ? 'Ðoϻɑiͷ': isIPv4(address) ? 'IPV4' : isIPv6(address) ? 'IPV6' : '';
+        ? addressType = 'Clean IP'
+        : addressType = isDomain(address) ? 'Domain': isIPv4(address) ? 'IPv4' : isIPv6(address) ? 'IPv6' : '';
 
-    return `⇢${protocol}${type}  ⇢${addressType} : ${port}  ¦${index}¦`;
+    return `💦 ${index} - ${protocol}${type} - ${addressType} : ${port}`;
 }
 
 function isDomain(address) {
@@ -1192,12 +1191,12 @@ function base64ToDecimal (base64) {
     return decimalArray;
 }
 
-async function updateDataset (env, Settings, resetSettings) {
-    let currentProxySettings;
+async function updateDataset (env, newSettings, resetSettings) {
+    let currentSettings;
 
     if (!resetSettings) {
         try {
-            currentProxySettings = await env.bpb.get("proxySettings", {type: 'json'});
+            currentSettings = await env.bpb.get("proxySettings", {type: 'json'});
         } catch (error) {
             console.log(error);
             throw new Error(`An error occurred while getting current values - ${error}`);
@@ -1206,44 +1205,45 @@ async function updateDataset (env, Settings, resetSettings) {
         await env.bpb.delete('warpConfigs');
     }
 
-    const chainProxy = Settings?.get('outProxy');
+    const chainProxy = newSettings?.get('outProxy');
     const proxySettings = {
-        remoteDNS: (Settings ? Settings.get('remoteDNS') : currentProxySettings?.remoteDNS) || 'https://dns.google/dns-query',
-        localDNS: (Settings ? Settings.get('localDNS') : currentProxySettings?.localDNS) || '8.8.8.8',
-        lengthMin: (Settings ? Settings.get('fragmentLengthMin') : currentProxySettings?.lengthMin) || '10',
-        lengthMax: (Settings ? Settings.get('fragmentLengthMax') : currentProxySettings?.lengthMax) || '30',
-        intervalMin: (Settings ? Settings.get('fragmentIntervalMin') : currentProxySettings?.intervalMin) || '1',
-        intervalMax: (Settings ? Settings.get('fragmentIntervalMax') : currentProxySettings?.intervalMax) || '2',
-        fragmentPackets: (Settings ? Settings.get('fragmentPackets') : currentProxySettings?.fragmentPackets) || 'tlshello',
-        blockAds: (Settings ? Settings.get('block-ads') : currentProxySettings?.blockAds) || false,
-        bypassIran: (Settings ? Settings.get('bypass-iran') : currentProxySettings?.bypassIran) || false,
-        blockPorn: (Settings ? Settings.get('block-porn') : currentProxySettings?.blockPorn) || false,
-        bypassLAN: (Settings ? Settings.get('bypass-lan') : currentProxySettings?.bypassLAN) || false,
-        bypassChina: (Settings ? Settings.get('bypass-china') : currentProxySettings?.bypassChina) || false,
-        blockUDP443: (Settings ? Settings.get('block-udp-443') : currentProxySettings?.blockUDP443) || false,
-        cleanIPs: (Settings ? Settings.get('cleanIPs')?.replaceAll(' ', '') : currentProxySettings?.cleanIPs) || '',
-        proxyIP: (Settings ? Settings.get('proxyIP')?.trim() : currentProxySettings?.proxyIP) || '',
-        ports: (Settings ? Settings.getAll('ports[]') : currentProxySettings?.ports) || ['443'],
-        vlessConfigs: (Settings ? Settings.get('vlessConfigs') : currentProxySettings?.vlessConfigs) || true,
-        trojanConfigs: (Settings ? Settings.get('trojanConfigs') : currentProxySettings?.trojanConfigs) || false,
-        outProxy: (Settings ? chainProxy : currentProxySettings?.outProxy) || '',
-        outProxyParams: (chainProxy ? extractChainProxyParams(chainProxy) : currentProxySettings?.outProxyParams) || '',
-        wowEndpoint: (Settings ? Settings.get('wowEndpoint')?.replaceAll(' ', '') : currentProxySettings?.wowEndpoint) || '162.159.192.175:891,188.114.98.1:1010,162.159.192.100:1018,162.159.192.0:955,188.114.97.170:2371,162.159.192.101:864',
-        warpEndpoints: (Settings ? Settings.get('warpEndpoints')?.replaceAll(' ', '') : currentProxySettings?.warpEndpoints) || '162.159.192.175:891,188.114.98.1:1010,162.159.192.100:1018,162.159.192.0:955,188.114.97.170:2371,162.159.192.101:864',
-        hiddifyNoiseMode: (Settings ? Settings.get('hiddifyNoiseMode') : currentProxySettings?.hiddifyNoiseMode) || 'm4',
-        nikaNGNoiseMode: (Settings ? Settings.get('nikaNGNoiseMode') : currentProxySettings?.nikaNGNoiseMode) || 'quic',
-        noiseCountMin: (Settings ? Settings.get('noiseCountMin') : currentProxySettings?.noiseCountMin) || '10',
-        noiseCountMax: (Settings ? Settings.get('noiseCountMax') : currentProxySettings?.noiseCountMax) || '15',
-        noiseSizeMin: (Settings ? Settings.get('noiseSizeMin') : currentProxySettings?.noiseSizeMin) || '5',
-        noiseSizeMax: (Settings ? Settings.get('noiseSizeMax') : currentProxySettings?.noiseSizeMax) || '10',
-        noiseDelayMin: (Settings ? Settings.get('noiseDelayMin') : currentProxySettings?.noiseDelayMin) || '1',
-        noiseDelayMax: (Settings ? Settings.get('noiseDelayMax') : currentProxySettings?.noiseDelayMax) || '2',
-        warpPlusLicense: (Settings ? Settings.get('warpPlusLicense') : currentProxySettings?.warpPlusLicense) || '',
-        customCdnAddrs: (Settings ? Settings.get('customCdnAddrs')?.replaceAll(' ', '') : currentProxySettings?.customCdnAddrs) || '',
-        customCdnHost: (Settings ? Settings.get('customCdnHost')?.trim() : currentProxySettings?.customCdnHost) || '',
-        customCdnSni: (Settings ? Settings.get('customCdnSni')?.trim() : currentProxySettings?.customCdnSni) || '',
-        bestVLESSTrojanInterval: (Settings ? Settings.get('bestVLESSTrojanInterval') : currentProxySettings?.bestVLESSTrojanInterval) || '30',
-        bestWarpInterval: (Settings ? Settings.get('bestWarpInterval') : currentProxySettings?.bestWarpInterval) || '30',
+        remoteDNS: newSettings ? newSettings.get('remoteDNS') : currentSettings?.hasOwnProperty('remoteDNS') ? currentSettings.remoteDNS : 'https://8.8.8.8/dns-query',
+        localDNS: newSettings ? newSettings.get('localDNS') : currentSettings?.hasOwnProperty('localDNS') ? currentSettings.localDNS : '8.8.8.8',
+        lengthMin: newSettings ? newSettings.get('fragmentLengthMin') : currentSettings?.hasOwnProperty('lengthMin') ? currentSettings.lengthMin : '100',
+        lengthMax: newSettings ? newSettings.get('fragmentLengthMax') : currentSettings?.hasOwnProperty('lengthMax') ? currentSettings.lengthMax : '200',
+        intervalMin: newSettings ? newSettings.get('fragmentIntervalMin') : currentSettings?.hasOwnProperty('intervalMin') ? currentSettings.intervalMin : '1',
+        intervalMax: newSettings ? newSettings.get('fragmentIntervalMax') : currentSettings?.hasOwnProperty('intervalMax') ? currentSettings.intervalMax : '1',
+        fragmentPackets: newSettings ? newSettings.get('fragmentPackets') : currentSettings?.hasOwnProperty('fragmentPackets') ? currentSettings.fragmentPackets : 'tlshello',
+        blockAds: newSettings ? newSettings.get('block-ads') : currentSettings?.hasOwnProperty('blockAds') ? currentSettings.blockAds : false,
+        bypassIran: newSettings ? newSettings.get('bypass-iran') : currentSettings?.hasOwnProperty('bypassIran') ? currentSettings.bypassIran : false,
+        blockPorn: newSettings ? newSettings.get('block-porn') : currentSettings?.hasOwnProperty('blockPorn') ? currentSettings.blockPorn : false,
+        bypassLAN: newSettings ? newSettings.get('bypass-lan') : currentSettings?.hasOwnProperty('bypassLAN') ? currentSettings.bypassLAN : false,
+        bypassChina: newSettings ? newSettings.get('bypass-china') : currentSettings?.hasOwnProperty('bypassChina') ? currentSettings.bypassChina : false,
+        blockUDP443: newSettings ? newSettings.get('block-udp-443') : currentSettings?.hasOwnProperty('blockUDP443') ? currentSettings.blockUDP443 : false,
+        cleanIPs: newSettings ? newSettings.get('cleanIPs')?.replaceAll(' ', '') : currentSettings?.hasOwnProperty('cleanIPs') ? currentSettings.cleanIPs : '',
+        enableIPv6: newSettings ? newSettings.get('enableIPv6') : currentSettings?.hasOwnProperty('enableIPv6') ? currentSettings.enableIPv6 : true,
+        proxyIP: newSettings ? newSettings.get('proxyIP')?.trim() : currentSettings?.hasOwnProperty('proxyIP') ? currentSettings.proxyIP : '',
+        ports: newSettings ? newSettings.getAll('ports[]') : currentSettings?.hasOwnProperty('ports') ? currentSettings.ports : ['443'],
+        vlessConfigs: newSettings ? newSettings.get('vlessConfigs') : currentSettings?.hasOwnProperty('vlessConfigs') ? currentSettings.vlessConfigs : true,
+        trojanConfigs: newSettings ? newSettings.get('trojanConfigs') : currentSettings?.hasOwnProperty('trojanConfigs') ? currentSettings.trojanConfigs : false,
+        outProxy: newSettings ? chainProxy : currentSettings?.hasOwnProperty('outProxy') ? currentSettings.outProxy : '',
+        outProxyParams: chainProxy ? extractChainProxyParams(chainProxy) : currentSettings?.hasOwnProperty('outProxyParams') ? currentSettings.outProxyParams : '',
+        wowEndpoint: newSettings ? newSettings.get('wowEndpoint')?.replaceAll(' ', '') : currentSettings?.hasOwnProperty('wowEndpoint') ? currentSettings.wowEndpoint : 'engage.cloudflareclient.com:2408',
+        warpEndpoints: newSettings ? newSettings.get('warpEndpoints')?.replaceAll(' ', '') : currentSettings?.hasOwnProperty('warpEndpoints') ? currentSettings.warpEndpoints : 'engage.cloudflareclient.com:2408',
+        hiddifyNoiseMode: newSettings ? newSettings.get('hiddifyNoiseMode') : currentSettings?.hasOwnProperty('hiddifyNoiseMode') ? currentSettings.hiddifyNoiseMode : 'm4',
+        nikaNGNoiseMode: newSettings ? newSettings.get('nikaNGNoiseMode') : currentSettings?.hasOwnProperty('nikaNGNoiseMode') ? currentSettings.nikaNGNoiseMode : 'quic',
+        noiseCountMin: newSettings ? newSettings.get('noiseCountMin') : currentSettings?.hasOwnProperty('noiseCountMin') ? currentSettings.noiseCountMin : '10',
+        noiseCountMax: newSettings ? newSettings.get('noiseCountMax') : currentSettings?.hasOwnProperty('noiseCountMax') ? currentSettings.noiseCountMax : '15',
+        noiseSizeMin: newSettings ? newSettings.get('noiseSizeMin') : currentSettings?.hasOwnProperty('noiseSizeMin') ? currentSettings.noiseSizeMin : '5',
+        noiseSizeMax: newSettings ? newSettings.get('noiseSizeMax') : currentSettings?.hasOwnProperty('noiseSizeMax') ? currentSettings.noiseSizeMax : '10',
+        noiseDelayMin: newSettings ? newSettings.get('noiseDelayMin') : currentSettings?.hasOwnProperty('noiseDelayMin') ? currentSettings.noiseDelayMin : '1',
+        noiseDelayMax: newSettings ? newSettings.get('noiseDelayMax') : currentSettings?.hasOwnProperty('noiseDelayMax') ? currentSettings.noiseDelayMax : '1',
+        warpPlusLicense: newSettings ? newSettings.get('warpPlusLicense') : currentSettings?.hasOwnProperty('warpPlusLicense') ? currentSettings.warpPlusLicense : '',
+        customCdnAddrs: newSettings ? newSettings.get('customCdnAddrs')?.replaceAll(' ', '') : currentSettings?.hasOwnProperty('customCdnAddrs') ? currentSettings.customCdnAddrs : '',
+        customCdnHost: newSettings ? newSettings.get('customCdnHost')?.trim() : currentSettings?.hasOwnProperty('customCdnHost') ? currentSettings.customCdnHost : '',
+        customCdnSni: newSettings ? newSettings.get('customCdnSni')?.trim() : currentSettings?.hasOwnProperty('customCdnSni') ? currentSettings.customCdnSni : '',
+        bestVLESSTrojanInterval: newSettings ? newSettings.get('bestVLESSTrojanInterval') : currentSettings?.hasOwnProperty('bestVLESSTrojanInterval') ? currentSettings.bestVLESSTrojanInterval : '30',
+        bestWarpInterval: newSettings ? newSettings.get('bestWarpInterval') : currentSettings?.hasOwnProperty('bestWarpInterval') ? currentSettings.bestWarpInterval : '30',
         panelVersion: panelVersion
     };
 
@@ -1274,8 +1274,8 @@ function getRandomPath (length) {
 }
 
 async function resolveDNS (domain) {
-    const dohURLv4 = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=A`;
-    const dohURLv6 = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=AAAA`;
+    const dohURLv4 = `${dohURL}?name=${encodeURIComponent(domain)}&type=A`;
+    const dohURLv6 = `${dohURL}?name=${encodeURIComponent(domain)}&type=AAAA`;
 
     try {
         const [ipv4Response, ipv6Response] = await Promise.all([
@@ -1300,13 +1300,14 @@ async function resolveDNS (domain) {
     }
 }
 
-async function getConfigAddresses(hostName, cleanIPs) {
+async function getConfigAddresses(hostName, cleanIPs, enableIPv6) {
     const resolved = await resolveDNS(hostName);
+    const defaultIPv6 = enableIPv6 ? resolved.ipv6.map((ip) => `[${ip}]`) : []
     return [
         hostName,
         'www.speedtest.net',
         ...resolved.ipv4,
-        ...resolved.ipv6.map((ip) => `[${ip}]`),
+        ...defaultIPv6,
         ...(cleanIPs ? cleanIPs.split(',') : [])
     ];
 }
@@ -1417,7 +1418,8 @@ async function renderHomePage (env, hostName, fragConfigs) {
         customCdnHost,
         customCdnSni,
         bestVLESSTrojanInterval,
-        bestWarpInterval
+        bestWarpInterval,
+        enableIPv6
     } = proxySettings;
 
     const isWarpReady = warpConfigs ? true : false;
@@ -1444,15 +1446,45 @@ async function renderHomePage (env, hostName, fragConfigs) {
     const html = `
     <!DOCTYPE html>
     <html lang="en">
-
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>BPB Panel ${panelVersion}</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        <title>Collapsible Sections</title>
 		<style>
-			body { font-family: system-ui; }
+            :root {
+                --color: black;
+                --primary-color: #09639f;
+                --secondary-color: #3498db;
+                --header-color: #09639f; 
+                --background-color: #fff;
+                --form-background-color: #f9f9f9;
+                --table-active-color: #f2f2f2;
+                --hr-text-color: #3b3b3b;
+                --lable-text-color: #333;
+                --border-color: #ddd;
+                --button-color: #09639f;
+                --input-background-color: white;
+                --header-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+            }
+			body { font-family: system-ui; background-color: var(--background-color); color: var(--color) }
+            body.dark-mode {
+                --color: white;
+                --primary-color: #09639F;
+                --secondary-color: #3498DB;
+                --header-color: #3498DB; 
+                --background-color: #121212;
+                --form-background-color: #121212;
+                --table-active-color: #252525;
+                --hr-text-color: #D5D5D5;
+                --lable-text-color: #DFDFDF;
+                --border-color: #353535;
+                --button-color: #3498DB;
+                --input-background-color: #252525;
+                --header-shadow: 2px 2px 4px rgba(255, 255, 255, 0.25);
+            }
             .material-symbols-outlined {
                 margin-left: 5px;
                 font-variation-settings:
@@ -1461,9 +1493,18 @@ async function renderHomePage (env, hostName, fragConfigs) {
                 'GRAD' 0,
                 'opsz' 24
             }
-            h1 { font-size: 2.5em; text-align: center; color: #09639f; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25); }
-			h2 { margin: 30px 0; text-align: center; color: #3b3b3b; }
-			hr { border: 1px solid #ddd; margin: 20px 0; }
+            details { border-bottom: 1px solid var(--border-color); }
+            summary {
+                font-weight: bold;
+                cursor: pointer;
+                text-align: center;
+                text-wrap: nowrap;
+            }
+            summary::marker { font-size: 1.5rem; color: var(--secondary-color); }
+            summary h2 { display: inline-flex; }
+            h1 { font-size: 2.5em; text-align: center; color: var(--header-color); text-shadow: var(--header-shadow); }
+			h2 { margin: 30px 0; text-align: center; color: var(--hr-text-color); }
+			hr { border: 1px solid var(--border-color); margin: 20px 0; }
             .footer {
                 display: flex;
                 font-weight: 600;
@@ -1475,19 +1516,17 @@ async function renderHomePage (env, hostName, fragConfigs) {
             .footer button:hover, .footer button:focus { background: #3b3b3b;}
             .form-control a, a.link { text-decoration: none; }
 			.form-control {
-				margin-bottom: 15px;
-				display: grid;
-				grid-template-columns: 1fr 1fr;
-				align-items: baseline;
-				justify-content: flex-end;
+				margin-bottom: 20px;
 				font-family: Arial, sans-serif;
+                display: flex;
+                flex-direction: column;
 			}
             .form-control button {
-                background-color: white;
+                background-color: var(--form-background-color);
                 font-size: 1.1rem;
                 font-weight: 600;
-                color: #09639f;
-                border-color: #09639f;
+                color: var(--button-color);
+                border-color: var(--primary-color);
                 border: 1px solid;
             }
             #apply {display: block; margin-top: 30px;}
@@ -1497,7 +1536,7 @@ async function renderHomePage (env, hostName, fragConfigs) {
 				margin-bottom: 5px;
 				font-size: 110%;
 				font-weight: 600;
-				color: #333;
+				color: var(--lable-text-color);
 			}
 			input[type="text"],
 			input[type="number"],
@@ -1507,11 +1546,11 @@ async function renderHomePage (env, hostName, fragConfigs) {
 				width: 100%;
 				text-align: center;
 				padding: 10px;
-				border: 1px solid #ddd;
+				border: 1px solid var(--border-color);
 				border-radius: 5px;
 				font-size: 16px;
-				color: #333;
-				background-color: #fff;
+				color: var(--lable-text-color);
+				background-color: var(--input-background-color);
 				box-sizing: border-box;
 				transition: border-color 0.3s ease;
 			}	
@@ -1519,7 +1558,7 @@ async function renderHomePage (env, hostName, fragConfigs) {
 			input[type="number"]:focus,
 			input[type="url"]:focus,
 			textarea:focus,
-			select:focus { border-color: #3498db; outline: none; }
+			select:focus { border-color: var(--secondary-color); outline: none; }
 			.button,
 			table button {
 				display: flex;
@@ -1533,13 +1572,18 @@ async function renderHomePage (env, hostName, fragConfigs) {
 				letter-spacing: 1px;
 				border: none;
 				border-radius: 5px;
-				color: #fff;
-				background-color: #09639f;
+				color: white;
+				background-color: var(--primary-color);
 				cursor: pointer;
 				outline: none;
 				box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 				transition: all 0.3s ease;
 			}
+            input[type="checkbox"] { 
+                background-color: var(--input-background-color);
+                style="margin: 0; 
+                grid-column: 2;"
+            }
             table button { margin: auto; width: auto; }
             .button.disabled {
                 background-color: #ccc;
@@ -1561,10 +1605,11 @@ async function renderHomePage (env, hostName, fragConfigs) {
 				max-width: 90%;
 				margin: 0 auto;
 				padding: 20px;
-				background: #f9f9f9;
-				border: 1px solid #eaeaea;
+				background: var(--form-background-color);
+				border: 1px solid var(--border-color);
 				border-radius: 10px;
 				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                margin-bottom: 100px;
 			}
 			.table-container { margin-top: 20px; overflow-x: auto; }
 			table { 
@@ -1575,12 +1620,12 @@ async function renderHomePage (env, hostName, fragConfigs) {
                 overflow: hidden;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             }
-			th, td { padding: 8px 15px; border-bottom: 1px solid #ddd; }
+			th, td { padding: 8px 15px; border-bottom: 1px solid var(--border-color); }
             td div { display: flex; align-items: center; }
-			th { background-color: #3498db; color: white; font-weight: bold; font-size: 1.1rem; width: 50%;}
-			tr:nth-child(odd) { background-color: #f2f2f2; }
+			th { background-color: var(--secondary-color); color: white; font-weight: bold; font-size: 1.1rem; width: 50%;}
+			tr:nth-child(odd) { background-color: var(--table-active-color); }
             #custom-configs-table td { text-align: center; text-wrap: nowrap; }
-			tr:hover { background-color: #f1f1f1; }
+			tr:hover { background-color: var(--table-active-color); }
             .modal {
                 display: none;
                 position: fixed;
@@ -1593,10 +1638,10 @@ async function renderHomePage (env, hostName, fragConfigs) {
                 background-color: rgba(0, 0, 0, 0.4);
             }
             .modal-content {
-                background-color: #f9f9f9;
+                background-color: var(--form-background-color);
                 margin: auto;
                 padding: 10px 20px 20px;
-                border: 1px solid #eaeaea;
+                border: 1px solid var(--border-color);
                 border-radius: 10px;
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                 width: 80%;
@@ -1605,43 +1650,45 @@ async function renderHomePage (env, hostName, fragConfigs) {
                 left: 50%;
                 transform: translate(-50%, -50%);
             }
-            .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+            .close { color: var(--color); float: right; font-size: 28px; font-weight: bold; }
             .close:hover,
             .close:focus { color: black; text-decoration: none; cursor: pointer; }
             .form-control label {
                 display: block;
-                margin-bottom: 5px;
+                margin-bottom: 8px;
                 font-size: 110%;
                 font-weight: 600;
-                color: #333;
+                color: var(--lable-text-color);
                 line-height: 1.3em;
             }
             .form-control input[type="password"] {
                 width: 100%;
                 padding: 10px;
-                border: 1px solid #ddd;
+                border: 1px solid var(--border-color);
                 border-radius: 5px;
                 font-size: 16px;
-                color: #333;
-                background-color: #fff;
+                color: var(--lable-text-color);
+                background-color: var(--input-background-color);
                 box-sizing: border-box;
                 margin-bottom: 15px;
                 transition: border-color 0.3s ease;
             }
             .routing { 
                 display: grid;
-                grid-template-columns: 1fr 3fr 8fr 1fr;
-                justify-content: center;
+                justify-content: flex-start;
+                grid-template-columns: 1fr 1fr 10fr 1fr;
                 margin-bottom: 15px;
             }
+            .form-control .routing input { grid-column: 2 / 3; }
+            #routing-rules.form-control { display: grid; grid-template-columns: 1fr 1fr; }
             .routing label {
                 text-align: left;
-                margin: 0;
+                margin: 0 0 0 10px;
                 font-weight: 400;
                 font-size: 100%;
                 text-wrap: nowrap;
             }
-            .form-control input[type="password"]:focus { border-color: #3498db; outline: none; }
+            .form-control input[type="password"]:focus { border-color: var(--secondary-color); outline: none; }
             #passwordError { color: red; margin-bottom: 10px; }
             .symbol { margin-right: 8px; }
             .modalQR {
@@ -1655,242 +1702,288 @@ async function renderHomePage (env, hostName, fragConfigs) {
                 overflow: auto;
                 background-color: rgba(0, 0, 0, 0.4);
             }
+            .floating-button {
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                background-color: var(--color);
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+                cursor: pointer;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                transition: background-color 0.3s, transform 0.3s;
+            }
+            .floating-button:hover { transform: scale(1.1); }
+            .min-max { display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline; width: 100%; }
+            .min-max span { text-align: center; white-space: pre; }
+            .input-with-select { width: 100%; }
+            body.dark-mode .floating-button { background-color: var(--color); }
+            body.dark-mode .floating-button:hover { transform: scale(1.1); }
             @media only screen and (min-width: 768px) {
                 .form-container { max-width: 70%; }
-                #apply { display: block; margin: 30px auto 0 auto; max-width: 50%; }
+                .form-control { 
+                    margin-bottom: 15px;
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    align-items: baseline;
+                    justify-content: flex-end;
+                    font-family: Arial, sans-serif;
+                }
+                #apply { display: block; margin: 20px auto 0 auto; max-width: 50%; }
                 .modal-content { width: 30% }
-                .routing { grid-template-columns: 4fr 2fr 6fr 4fr; }
+                .routing { display: grid; grid-template-columns: 4fr 1fr 3fr 4fr; }
             }
 		</style>
 	</head>
-	
 	<body>
-		<h1>BPB CONTROL PANEL <span style="font-size: smaller;">${panelVersion}</span>  👻 </h1>
+		<h1>BPB Panel <span style="font-size: smaller;">${panelVersion}</span> 💦</h1>
 		<div class="form-container">
             <form id="configForm">
-                <h2>VLESS & TROJAN SETTINGS <span class="material-symbols-outlined">settings</span> </h2>
-				<div class="form-control">
-					<label for="remoteDNS"><span class="material-symbols-outlined">dynamic_form</span> Remote DNS</label>
-					<input type="url" id="remoteDNS" name="remoteDNS" value="${remoteDNS}" required>
-				</div>
-				<div class="form-control">
-					<label for="localDNS"><span class="material-symbols-outlined">roofing</span> Local DNS</label>
-					<input type="text" id="localDNS" name="localDNS" value="${localDNS}"
-						pattern="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|localhost$"
-						title="Please enter a valid DNS IP Address or localhost!"  required>
-				</div>
-				<div class="form-control">
-					<label for="proxyIP"><span class="material-symbols-outlined">fingerprint</span> Proxy IP</label>
-					<input type="text" id="proxyIP" name="proxyIP" value="${proxyIP}">
-				</div>
-                <div class="form-control">
-					<label for="outProxy"><span class="material-symbols-outlined">connecting_airports</span> Chain Proxy</label>
-					<input type="text" id="outProxy" name="outProxy" value="${outProxy}">
-				</div>
-				<div class="form-control">
-					<label for="cleanIPs"><span class="material-symbols-outlined">spa</span> Clean IPs</label>
-					<input type="text" id="cleanIPs" name="cleanIPs" value="${cleanIPs.replaceAll(",", " , ")}">
-				</div>
-                <div class="form-control">
-                    <label><span class="material-symbols-outlined">search_insights</span> CF IP Scanner</label>
-                    <a href="https://scanner.github1.cloud/" id="scanner" name="scanner" target="_blank">
-                        <button type="button" class="button">
-                            Scan now
-                            <span class="material-symbols-outlined" style="margin-left: 5px;">open_in_new</span>
+                <details open>
+                    <summary><h2>VLESS / TROJAN ⚙️</h2></summary>
+                    <div class="form-control">
+                        <label for="remoteDNS">🌏 Remote DNS</label>
+                        <input type="url" id="remoteDNS" name="remoteDNS" value="${remoteDNS}" required>
+                    </div>
+                    <div class="form-control">
+                        <label for="localDNS">🏚️ Local DNS</label>
+                        <input type="text" id="localDNS" name="localDNS" value="${localDNS}"
+                            pattern="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|localhost$"
+                            title="Please enter a valid DNS IP Address or localhost!"  required>
+                    </div>
+                    <div class="form-control">
+                        <label for="proxyIP">📍 Proxy IP</label>
+                        <input type="text" id="proxyIP" name="proxyIP" value="${proxyIP}">
+                    </div>
+                    <div class="form-control">
+                        <label for="outProxy">✈️ Chain Proxy</label>
+                        <input type="text" id="outProxy" name="outProxy" value="${outProxy}">
+                    </div>
+                    <div class="form-control">
+                        <label for="cleanIPs">✨ Clean IPs</label>
+                        <input type="text" id="cleanIPs" name="cleanIPs" value="${cleanIPs.replaceAll(",", " , ")}">
+                    </div>
+                    <div class="form-control">
+                        <label>🔎 IP Scanner</label>
+                        <a href="https://scanner.github1.cloud/" id="scanner" name="scanner" target="_blank" style="width: 100%;">
+                            <button type="button" class="button">
+                                Scan now
+                                <span class="material-symbols-outlined">open_in_new</span>
+                            </button>
+                        </a>
+                    </div>
+                    <div class="form-control">
+                        <label for="enableIPv6">🔛 IPv6 Configs</label>
+                        <div class="input-with-select">
+                            <select id="enableIPv6" name="enableIPv6">
+                                <option value="true" ${enableIPv6 ? 'selected' : ''}>Enabled</option>
+                                <option value="" ${!enableIPv6 ? 'selected' : ''}>Disabled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-control">
+                        <label for="customCdnAddrs">💀 Custom CDN Addrs</label>
+                        <input type="text" id="customCdnAddrs" name="customCdnAddrs" value="${customCdnAddrs.replaceAll(",", " , ")}">
+                    </div>
+                    <div class="form-control">
+                        <label for="customCdnHost">💀 Custom CDN Host</label> 
+                        <input type="text" id="customCdnHost" name="customCdnHost" value="${customCdnHost}">
+                    </div>
+                    <div class="form-control">
+                        <label for="customCdnSni">💀 Custom CDN SNI</label>
+                        <input type="text" id="customCdnSni" name="customCdnSni" value="${customCdnSni}">
+                    </div>
+                    <div class="form-control">
+                        <label for="bestVLESSTrojanInterval">🔄 Best Interval</label>
+                        <input type="number" id="bestVLESSTrojanInterval" name="bestVLESSTrojanInterval" min="10" max="90" value="${bestVLESSTrojanInterval}">
+                    </div>
+                    <div class="form-control" style="padding-top: 10px;">
+                        <label>⚙️ Protocols</label>
+                        <div style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; align-items: baseline; margin-top: 10px;">
+                            <div style = "display: flex; justify-content: center; align-items: center;">
+                                <input type="checkbox" id="vlessConfigs" name="vlessConfigs" onchange="handleProtocolChange(event)" value="true" ${vlessConfigs ? 'checked' : ''}>
+                                <label for="vlessConfigs" style="margin: 0 5px; font-weight: normal; font-size: unset;">VLESS</label>
+                            </div>
+                            <div style = "display: flex; justify-content: center; align-items: center;">
+                                <input type="checkbox" id="trojanConfigs" name="trojanConfigs" onchange="handleProtocolChange(event)" value="true" ${trojanConfigs ? 'checked' : ''}>
+                                <label for="trojanConfigs" style="margin: 0 5px; font-weight: normal; font-size: unset;">Trojan</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="ports-block">
+                            <tr>
+                                <th style="text-wrap: nowrap; background-color: gray;">Config type</th>
+                                <th style="text-wrap: nowrap; background-color: gray;">Ports</th>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center; font-size: larger;"><b>TLS</b></td>
+                                <td style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;">${(await buildPortsBlock()).httpsPortsBlock}</td>    
+                            </tr>
+                            ${hostName.includes('pages.dev') ? '' : `<tr>
+                                <td style="text-align: center; font-size: larger;"><b>Non TLS</b></td>
+                                <td style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;">${(await buildPortsBlock()).httpPortsBlock}</td>    
+                            </tr>`}        
+                        </table>
+                    </div>
+                </details>
+                <details>
+                    <summary><h2>FRAGMENT ⚙️</h2></summary>	
+                    <div class="form-control">
+                        <label for="fragmentLengthMin">📐 Length</label>
+                        <div class="min-max">
+                            <input type="number" id="fragmentLengthMin" name="fragmentLengthMin" value="${lengthMin}" min="10" required>
+                            <span> - </span>
+                            <input type="number" id="fragmentLengthMax" name="fragmentLengthMax" value="${lengthMax}" max="500" required>
+                        </div>
+                    </div>
+                    <div class="form-control">
+                        <label for="fragmentIntervalMin">🕞 Interval</label>
+                        <div class="min-max">
+                            <input type="number" id="fragmentIntervalMin" name="fragmentIntervalMin"
+                                value="${intervalMin}" min="1" max="30" required>
+                            <span> - </span>
+                            <input type="number" id="fragmentIntervalMax" name="fragmentIntervalMax"
+                                value="${intervalMax}" min="1" max="30" required>
+                        </div>
+                    </div>
+                    <div class="form-control">
+                        <label for="fragmentPackets">📦 Packets</label>
+                        <div class="input-with-select">
+                            <select id="fragmentPackets" name="fragmentPackets">
+                                <option value="tlshello" ${fragmentPackets === 'tlshello' ? 'selected' : ''}>tlshello</option>
+                                <option value="1-1" ${fragmentPackets === '1-1' ? 'selected' : ''}>1-1</option>
+                                <option value="1-2" ${fragmentPackets === '1-2' ? 'selected' : ''}>1-2</option>
+                                <option value="1-3" ${fragmentPackets === '1-3' ? 'selected' : ''}>1-3</option>
+                                <option value="1-5" ${fragmentPackets === '1-5' ? 'selected' : ''}>1-5</option>
+                            </select>
+                        </div>
+                    </div>
+                </details>
+                <details>
+                    <summary><h2>ROUTING RULES ⚙️</h2></summary>
+                    <div id="routing-rules" class="form-control" style="margin-bottom: 20px;">			
+                        <div class="routing">
+                            <input type="checkbox" id="block-ads" name="block-ads" value="true" ${blockAds ? 'checked' : ''}>
+                            <label for="block-ads">Block Ads.</label>
+                        </div>
+                        <div class="routing">
+                            <input type="checkbox" id="bypass-iran" name="bypass-iran" value="true" ${bypassIran ? 'checked' : ''}>
+                            <label for="bypass-iran">Bypass Iran</label>
+                        </div>
+                        <div class="routing">
+                            <input type="checkbox" id="block-porn" name="block-porn" value="true" ${blockPorn ? 'checked' : ''}>
+                            <label for="block-porn">Block Porn</label>
+                        </div>
+                        <div class="routing">
+                            <input type="checkbox" id="bypass-lan" name="bypass-lan" value="true" ${bypassLAN ? 'checked' : ''}>
+                            <label for="bypass-lan">Bypass LAN</label>
+                        </div>
+                        <div class="routing">
+                            <input type="checkbox" id="block-udp-443" name="block-udp-443" value="true" ${blockUDP443 ? 'checked' : ''}>
+                            <label for="block-udp-443">Block QUIC</label>
+                        </div>
+                        <div class="routing">
+                            <input type="checkbox" id="bypass-china" name="bypass-china" value="true" ${bypassChina ? 'checked' : ''}>
+                            <label for="bypass-china">Bypass China</label>
+                        </div>
+                    </div>
+                </details>
+                <details>
+                    <summary><h2>WARP GENERAL ⚙️</h2></summary>
+                    <div class="form-control">
+                        <label for="wowEndpoint">✨ WoW Endpoints</label>
+                        <input type="text" id="wowEndpoint" name="wowEndpoint" value="${wowEndpoint.replaceAll(",", " , ")}" required>
+                    </div>
+                    <div class="form-control">
+                        <label for="warpEndpoints">✨ Warp Endpoints</label>
+                        <input type="text" id="warpEndpoints" name="warpEndpoints" value="${warpEndpoints.replaceAll(",", " , ")}" required>
+                    </div>
+                    <div class="form-control">
+                        <label for="warpPlusLicense">➕ Warp+ License</label>
+                        <input type="text" id="warpPlusLicense" name="warpPlusLicense" value="${warpPlusLicense}" 
+                            pattern="^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{8}-[a-zA-Z0-9]{8}$" 
+                            title="Please enter a valid Warp Plus license in xxxxxxxx-xxxxxxxx-xxxxxxxx format">
+                    </div>
+                    <div class="form-control">
+                        <label>♻️ Warp Configs</label>
+                        <button id="refreshBtn" type="button" class="button" style="padding: 10px 0;" onclick="getWarpConfigs()">
+                            Update<span class="material-symbols-outlined">autorenew</span>
                         </button>
-                    </a>
-                </div>
-                <div class="form-control">
-					<label for="customCdnAddrs"><span class="material-symbols-outlined">instant_mix</span>  Custom Addr</label>
-					<input type="text" id="customCdnAddrs" name="customCdnAddrs" value="${customCdnAddrs.replaceAll(",", " , ")}">
-				</div>
-                <div class="form-control">
-					<label for="customCdnHost"><span class="material-symbols-outlined">instant_mix</span> Custom Host</label>
-					<input type="text" id="customCdnHost" name="customCdnHost" value="${customCdnHost}">
-				</div>
-                <div class="form-control">
-					<label for="customCdnSni"><span class="material-symbols-outlined">instant_mix</span> Custom SNI</label>
-					<input type="text" id="customCdnSni" name="customCdnSni" value="${customCdnSni}">
-				</div>
-                <div class="form-control">
-					<label for="bestVLESSTrojanInterval"><span class="material-symbols-outlined">star</span> Best Interval</label>
-					<input type="number" id="bestVLESSTrojanInterval" name="bestVLESSTrojanInterval" min="10" max="90" value="${bestVLESSTrojanInterval}">
-				</div>
-                <div class="form-control" style="padding-top: 10px;">
-					<label><span class="material-symbols-outlined">memory</span> Protocols</label>
-					<div style="display: grid; grid-template-columns: 1fr 1fr; align-items: baseline; margin-top: 10px;">
-                        <div style = "display: flex; justify-content: center; align-items: center;">
-                            <input type="checkbox" id="vlessConfigs" name="vlessConfigs" onchange="handleProtocolChange(event)" style="margin: 0; grid-column: 2;" value="true" ${vlessConfigs ? 'checked' : ''}>
-                            <label for="vlessConfigs" style="margin: 0 5px; font-weight: normal; font-size: unset;">VLESS</label>
-                        </div>
-                        <div style = "display: flex; justify-content: center; align-items: center;">
-                            <input type="checkbox" id="trojanConfigs" name="trojanConfigs" onchange="handleProtocolChange(event)" style="margin: 0; grid-column: 2;" value="true" ${trojanConfigs ? 'checked' : ''}>
-                            <label for="trojanConfigs" style="margin: 0 5px; font-weight: normal; font-size: unset;">Trojan</label>
-                        </div>
-					</div>
-				</div>
-                <div class="table-container">
-                    <table id="frag-sub-table">
-                        <tr>
-                            <th style="text-wrap: nowrap; background-color: gray;">Config type</th>
-                            <th style="text-wrap: nowrap; background-color: gray;">Ports</th>
-                        </tr>
-                        <tr>
-                            <td style="text-align: center; font-size: larger;"><b>TLS</b></td>
-                            <td style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;">${(await buildPortsBlock()).httpsPortsBlock}</td>    
-                        </tr>
-                        ${hostName.includes('pages.dev') ? '' : `<tr>
-                            <td style="text-align: center; font-size: larger;"><b>Non TLS</b></td>
-                            <td style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;">${(await buildPortsBlock()).httpPortsBlock}</td>    
-                        </tr>`}        
-                    </table>
-                </div>
-                <h2>FRAGMENT SETTINGS <span class="material-symbols-outlined">settings</span> </h2>	
-				<div class="form-control">
-					<label for="fragmentLengthMin"><span class="material-symbols-outlined">perm_data_setting</span> Length</label>
-					<div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline;">
-						<input type="number" id="fragmentLengthMin" name="fragmentLengthMin" value="${lengthMin}" min="10" required>
-						<span style="text-align: center; white-space: pre;"> - </span>
-						<input type="number" id="fragmentLengthMax" name="fragmentLengthMax" value="${lengthMax}" max="8000" required>
-					</div>
-				</div>
-				<div class="form-control">
-					<label for="fragmentIntervalMin"><span class="material-symbols-outlined">snooze</span> Interval</label>
-					<div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline;">
-						<input type="number" id="fragmentIntervalMin" name="fragmentIntervalMin"
-    						value="${intervalMin}" max="30" required>
-						<span style="text-align: center; white-space: pre;"> - </span>
-						<input type="number" id="fragmentIntervalMax" name="fragmentIntervalMax"
-    						value="${intervalMax}" max="30" required>
-					</div>
-				</div>
-                <div class="form-control">
-                    <label for="fragmentPackets"><span class="material-symbols-outlined">deployed_code</span> Fragment Packets</label>
-                    <div class="input-with-select">
-                        <select id="fragmentPackets" name="fragmentPackets">
-                            <option value="tlshello" ${fragmentPackets === 'tlshello' ? 'selected' : ''}>tlshello</option>
-                            <option value="1-1" ${fragmentPackets === '1-1' ? 'selected' : ''}>1-1</option>
-                            <option value="1-2" ${fragmentPackets === '1-2' ? 'selected' : ''}>1-2</option>
-                            <option value="1-3" ${fragmentPackets === '1-3' ? 'selected' : ''}>1-3</option>
-                            <option value="1-5" ${fragmentPackets === '1-5' ? 'selected' : ''}>1-5</option>
-			    <option value="2-4" ${fragmentPackets === '2-4' ? 'selected' : ''}>2-4</option>
-                        </select>
                     </div>
-                </div>
-                <h2>ROUTING <span class="material-symbols-outlined">rule_settings</span></h2>
-				<div class="form-control" style="margin-bottom: 20px;">			
-                    <div class="routing">
-                        <input type="checkbox" id="block-ads" name="block-ads" style="margin: 0; grid-column: 2;" value="true" ${blockAds ? 'checked' : ''}>
-                        <label for="block-ads">Block Ads.</label>
+                    <div class="form-control">
+                        <label style="line-height: 1.5;">🔎 Scan Endpoint</label>
+                        <button type="button" class="button" style="padding: 10px 0;" onclick="copyToClipboard('bash <(curl -fsSL https://raw.githubusercontent.com/Ptechgithub/warp/main/endip/install.sh)', false)">
+                            Copy Script<span class="material-symbols-outlined">terminal</span>
+                        </button>
                     </div>
-                    <div class="routing">
-						<input type="checkbox" id="bypass-iran" name="bypass-iran" style="margin: 0; grid-column: 2;" value="true" ${bypassIran ? 'checked' : ''}>
-                        <label for="bypass-iran">Bypass Iran</label>
-					</div>
-                    <div class="routing">
-						<input type="checkbox" id="block-porn" name="block-porn" style="margin: 0; grid-column: 2;" value="true" ${blockPorn ? 'checked' : ''}>
-                        <label for="block-porn">Block Porn</label>
-					</div>
-                    <div class="routing">
-						<input type="checkbox" id="bypass-lan" name="bypass-lan" style="margin: 0; grid-column: 2;" value="true" ${bypassLAN ? 'checked' : ''}>
-                        <label for="bypass-lan">Bypass LAN</label>
-					</div>
-                    <div class="routing">
-						<input type="checkbox" id="bypass-china" name="bypass-china" style="margin: 0; grid-column: 2;" value="true" ${bypassChina ? 'checked' : ''}>
-                        <label for="bypass-china">Bypass China</label>
-					</div>
-                    <div class="routing">
-						<input type="checkbox" id="block-udp-443" name="block-udp-443" style="margin: 0; grid-column: 2;" value="true" ${blockUDP443 ? 'checked' : ''}>
-                        <label for="block-udp-443">Block QUIC</label>
-					</div>
-				</div>
-                <h2>WARP SETTINGS <span class="material-symbols-outlined">settings</span></h2>
-				<div class="form-control">
-                    <label for="wowEndpoint"><span class="material-symbols-outlined">merge_type</span> WoW Endpoints</label>
-                    <input type="text" id="wowEndpoint" name="wowEndpoint" value="${wowEndpoint.replaceAll(",", " , ")}" required>
-				</div>
-				<div class="form-control">
-                    <label for="warpEndpoints"><span class="material-symbols-outlined">turn_sharp_right</span> Warp Endpoints</label>
-                    <input type="text" id="warpEndpoints" name="warpEndpoints" value="${warpEndpoints.replaceAll(",", " , ")}" required>
-				</div>
-				<div class="form-control">
-                    <label for="warpPlusLicense"><span class="material-symbols-outlined">key_vertical</span> Warp license key</label>
-                    <input type="text" id="warpPlusLicense" name="warpPlusLicense" value="${warpPlusLicense}" 
-                        pattern="^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{8}-[a-zA-Z0-9]{8}$" 
-                        title="Please enter a valid Warp Plus license in xxxxxxxx-xxxxxxxx-xxxxxxxx format">
-				</div>
-                <div class="form-control">
-                    <label><span class="material-symbols-outlined">lightning_stand</span> Warp Configs</label>
-                    <button id="refreshBtn" type="button" class="button" style="padding: 10px 0;" onclick="getWarpConfigs()">
-                        Update<span class="material-symbols-outlined">autorenew</span>
-                    </button>
-                </div>
-                <div class="form-control">
-                    <label style="line-height: 1.5;"><span class="material-symbols-outlined">mystery</span> Endpoint Scanner</label>
-                    <button type="button" class="button" style="padding: 10px 0;" onclick="copyToClipboard('bash <(curl -fsSL https://raw.githubusercontent.com/Ptechgithub/warp/main/endip/install.sh)', false)">
-                        Copy Script<span class="material-symbols-outlined">terminal</span>
-                    </button>
-                </div>
-                <div class="form-control">
-					<label for="bestWarpInterval"><span class="material-symbols-outlined">star</span> Best Interval</label>
-					<input type="number" id="bestWarpInterval" name="bestWarpInterval" min="10" max="90" value="${bestWarpInterval}">
-				</div>
-                <h2>WARP PRO SETTINGS <span class="material-symbols-outlined">settings</span></h2>
-                <div class="form-control">
-					<label for="hiddifyNoiseMode"><span class="material-symbols-outlined">elderly_woman</span> Hiddify mode</label>
-					<input type="text" id="hiddifyNoiseMode" name="hiddifyNoiseMode" 
-                        pattern="^(m[1-6]|h_[0-9A-Fa-f]{2}|g_([0-9A-Fa-f]{2}_){2}[0-9A-Fa-f]{2})$" 
-                        title="Enter 'm1-m6', 'h_HEX', 'g_HEX_HEX_HEX' which HEX can be between 00 to ff"
-                        value="${hiddifyNoiseMode}" required>
-				</div>
-                <div class="form-control">
-					<label for="nikaNGNoiseMode"><span class="material-symbols-outlined">heart_check</span> NikaNG mode</label>
-					<input type="text" id="nikaNGNoiseMode" name="nikaNGNoiseMode" 
-                        pattern="^(none|quic|random|[0-9A-Fa-f]+)$" 
-                        title="Enter 'none', 'quic', 'random', or any HEX string like 'ee0000000108aaaa'"
-                        value="${nikaNGNoiseMode}" required>
-				</div>
-                <div class="form-control">
-					<label for="noiseCountMin"><span class="material-symbols-outlined">function</span> Noise Count</label>
-					<div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline;">
-						<input type="number" id="noiseCountMin" name="noiseCountMin"
-    						value="${noiseCountMin}" required>
-						<span style="text-align: center; white-space: pre;"> - </span>
-						<input type="number" id="noiseCountMax" name="noiseCountMax"
-    						value="${noiseCountMax}" required>
-					</div>
-				</div>
-                <div class="form-control">
-					<label for="noiseSizeMin"><span class="material-symbols-outlined">perm_data_setting</span> Noise Size</label>
-					<div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline;">
-						<input type="number" id="noiseSizeMin" name="noiseSizeMin"
-    						value="${noiseSizeMin}" required>
-						<span style="text-align: center; white-space: pre;"> - </span>
-						<input type="number" id="noiseSizeMax" name="noiseSizeMax"
-    						value="${noiseSizeMax}" required>
-					</div>
-				</div>
-                <div class="form-control">
-					<label for="noiseDelayMin"><span class="material-symbols-outlined">snooze</span> Noise Delay</label>
-					<div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline;">
-						<input type="number" id="noiseDelayMin" name="noiseDelayMin"
-    						value="${noiseDelayMin}" required>
-						<span style="text-align: center; white-space: pre;"> - </span>
-						<input type="number" id="noiseDelayMax" name="noiseDelayMax"
-    						value="${noiseDelayMax}" required>
-					</div>
-				</div>
+                    <div class="form-control">
+                        <label for="bestWarpInterval">🔄 Best Interval</label>
+                        <input type="number" id="bestWarpInterval" name="bestWarpInterval" min="10" max="90" value="${bestWarpInterval}">
+                    </div>
+                </details>
+                <details>
+                    <summary><h2>WARP PRO ⚙️</h2></summary>
+                    <div class="form-control">
+                        <label for="hiddifyNoiseMode">😵‍💫 Hiddify Mode</label>
+                        <input type="text" id="hiddifyNoiseMode" name="hiddifyNoiseMode" 
+                            pattern="^(m[1-6]|h_[0-9A-Fa-f]{2}|g_([0-9A-Fa-f]{2}_){2}[0-9A-Fa-f]{2})$" 
+                            title="Enter 'm1-m6', 'h_HEX', 'g_HEX_HEX_HEX' which HEX can be between 00 to ff"
+                            value="${hiddifyNoiseMode}" required>
+                    </div>
+                    <div class="form-control">
+                        <label for="nikaNGNoiseMode">😵‍💫 NikaNG Mode</label>
+                        <input type="text" id="nikaNGNoiseMode" name="nikaNGNoiseMode" 
+                            pattern="^(none|quic|random|[0-9A-Fa-f]+)$" 
+                            title="Enter 'none', 'quic', 'random', or any HEX string like 'ee0000000108aaaa'"
+                            value="${nikaNGNoiseMode}" required>
+                    </div>
+                    <div class="form-control">
+                        <label for="noiseCountMin">🎚️ Noise Count</label>
+                        <div class="min-max">
+                            <input type="number" id="noiseCountMin" name="noiseCountMin"
+                                value="${noiseCountMin}" min="1" required>
+                            <span> - </span>
+                            <input type="number" id="noiseCountMax" name="noiseCountMax"
+                                value="${noiseCountMax}" min="1" required>
+                        </div>
+                    </div>
+                    <div class="form-control">
+                        <label for="noiseSizeMin">📏 Noise Size</label>
+                        <div class="min-max">
+                            <input type="number" id="noiseSizeMin" name="noiseSizeMin"
+                                value="${noiseSizeMin}" min="1" required>
+                            <span> - </span>
+                            <input type="number" id="noiseSizeMax" name="noiseSizeMax"
+                                value="${noiseSizeMax}" min="1" required>
+                        </div>
+                    </div>
+                    <div class="form-control">
+                        <label for="noiseDelayMin">🕞 Noise Delay</label>
+                        <div class="min-max">
+                            <input type="number" id="noiseDelayMin" name="noiseDelayMin"
+                                value="${noiseDelayMin}" min="1" required>
+                            <span> - </span>
+                            <input type="number" id="noiseDelayMax" name="noiseDelayMax"
+                                value="${noiseDelayMax}" min="1" required>
+                        </div>
+                    </div>
+                </details>
 				<div id="apply" class="form-control">
 					<div style="grid-column: 2; width: 100%; display: inline-flex;">
-						<input type="submit" id="applyButton" style="margin-right: 10px;" class="button disabled" value=" APPLY SETTINGS " form="configForm">
+						<input type="submit" id="applyButton" style="margin-right: 10px;" class="button disabled" value="APPLY SETTINGS 💥" form="configForm">
                         <button type="button" id="resetSettings" style="background: none; margin: 0; border: none; cursor: pointer;">
-                            <i class="fa fa-refresh fa-2x fa-border" style="border-radius: .2em;" aria-hidden="true"></i>
+                            <i class="fa fa-refresh fa-2x fa-border" style="border-radius: .2em; border-color: var(--border-color);" aria-hidden="true"></i>
                         </button>
 					</div>
 				</div>
 			</form>
             <hr>            
-			<h2>NORMAL SUB <span class="material-symbols-outlined">code</span></h2>
+			<h2>NORMAL SUB 🔗</h2>
 			<div class="table-container">
 				<table id="normal-configs-table">
 					<tr>
@@ -1900,180 +1993,180 @@ async function renderHomePage (env, hostName, fragConfigs) {
 					<tr>
                         <td>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>v2rayNG</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>NikaNG</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>MahsaNG</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>v2rayN</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>v2rayN-PRO</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Shadowrocket</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Streisand</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Hiddify</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Nekoray (Xray)</span>
                             </div>
                         </td>
 						<td>
                             <button onclick="openQR('https://${hostName}/sub/${userID}#BPB-Normal', 'Normal Subscription')" style="margin-bottom: 8px;">
-                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code_2</span>
+                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code</span>
                             </button>
                             <button onclick="copyToClipboard('https://${hostName}/sub/${userID}#BPB-Normal', false)">
-                                Copy Sub<span class="material-symbols-outlined">subject</span>
+                                Copy Sub<span class="material-symbols-outlined">format_list_bulleted</span>
                             </button>
                         </td>
 					</tr>
 					<tr>
                         <td>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Nekobox</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Nekoray (Sing-Box)</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Karing</span>
                             </div>
                         </td>
 						<td>
                             <button onclick="copyToClipboard('https://${hostName}/sub/${userID}?app=singbox#BPB-Normal', false)">
-                                Copy Sub<span class="material-symbols-outlined">subject</span>
+                                Copy Sub<span class="material-symbols-outlined">format_list_bulleted</span>
                             </button>
 						</td>
 					</tr>
                     <tr>
                         <td>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Sing-box</b></span>
                             </div>
                         </td>
                         <td>
                             <button onclick="openQR('sing-box://import-remote-profile?url=https://${hostName}/sub/${userID}?app=sfa#BPB-Normal', 'Normal Subscription')" style="margin-bottom: 8px;">
-                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code_2</span>
+                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code</span>
                             </button>
                             <button onclick="copyToClipboard('https://${hostName}/sub/${userID}?app=sfa#BPB-Normal', false)">
-                                Copy Sub<span class="material-symbols-outlined">subject</span>
+                                Copy Sub<span class="material-symbols-outlined">format_list_bulleted</span>
                             </button>
                         </td>
                     </tr>
                     <tr>
                         <td>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Clash Meta</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Clash Verge</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>v2rayN</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>FlClash</span>
                             </div>
                         </td>
                         <td>
                             <button onclick="openQR('https://${hostName}/sub/${userID}?app=clash#BPB-Normal', 'Normal Subscription')" style="margin-bottom: 8px;">
-                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code_2</span>
+                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code</span>
                             </button>
                             <button onclick="copyToClipboard('https://${hostName}/sub/${userID}?app=clash#BPB-Normal', false)">
-                                Copy Sub<span class="material-symbols-outlined">subject</span>
+                                Copy Sub<span class="material-symbols-outlined">format_list_bulleted</span>
                             </button>
                         </td>
                     </tr>
 				</table>
 			</div>
-			<h2>FRAGMENT SUB <span class="material-symbols-outlined">link</span></h2>
+			<h2>FRAGMENT SUB ⛓️</h2>
 			<div class="table-container">
                 <table id="frag-sub-table">
                     <tr>
                         <th style="text-wrap: nowrap;">Application</th>
-                        <th style="text-wrap: nowrap;">Fragment Subscription</th>
+                        <th style="text-wrap: nowrap;">Subscription</th>
                     </tr>
                     <tr>
                         <td style="text-wrap: nowrap;">
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>v2rayNG</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>NikaNG</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>MahsaNG</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>v2rayN</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>v2rayN-PRO</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Streisand</span>
                             </div>
                         </td>
                         <td>
                             <button onclick="openQR('https://${hostName}/fragsub/${userID}#BPB Fragment', 'Fragment Subscription')" style="margin-bottom: 8px;">
-                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code_2</span>
+                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code</span>
                             </button>
                             <button onclick="copyToClipboard('https://${hostName}/fragsub/${userID}#BPB Fragment', true)">
-                                Copy Sub<span class="material-symbols-outlined">subject</span>
+                                Copy Sub<span class="material-symbols-outlined">format_list_bulleted</span>
                             </button>
                         </td>
                     </tr>
                     <tr>
                         <td style="text-wrap: nowrap;">
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Hiddify</span>
                             </div>
                         </td>
                         <td>
                             <button onclick="openQR('https://${hostName}/fragsub/${userID}?app=hiddify#BPB-Fragment', 'Fragment Subscription')" style="margin-bottom: 8px;">
-                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code_2</span>
+                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code</span>
                             </button>
                             <button onclick="copyToClipboard('https://${hostName}/fragsub/${userID}?app=hiddify#BPB-Fragment', true)">
-                                Copy Sub<span class="material-symbols-outlined">subject</span>
+                                Copy Sub<span class="material-symbols-outlined">format_list_bulleted</span>
                             </button>
                         </td>
                     </tr>
                 </table>
             </div>
-            <h2>WARP SUB <span class="material-symbols-outlined">link</span></h2>
+            <h2>WARP SUB 🔗</h2>
 			<div class="table-container">
 				<table id="normal-configs-table">
 					<tr>
@@ -2083,78 +2176,78 @@ async function renderHomePage (env, hostName, fragConfigs) {
 					<tr>
                         <td>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>v2rayNG</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>v2rayN</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Streisand</span>
                             </div>
                         </td>
 						<td>
                             <button onclick="openQR('https://${hostName}/warpsub/${userID}?app=xray#BPB-Warp', 'Warp Subscription')" style="margin-bottom: 8px;">
-                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code_2</span>
+                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code</span>
                             </button>
                             <button onclick="copyToClipboard('https://${hostName}/warpsub/${userID}?app=xray#BPB-Warp', false)">
-                                Copy Sub<span class="material-symbols-outlined">subject</span>
+                                Copy Sub<span class="material-symbols-outlined">format_list_bulleted</span>
                             </button>
                         </td>
 					</tr>
 					<tr>
                         <td>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Hiddify</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Singbox</span>
                             </div>
                         </td>
 						<td>
                             <button onclick="openQR('sing-box://import-remote-profile?url=https://${hostName}/warpsub/${userID}?app=singbox#BPB-Warp', 'Warp Subscription')" style="margin-bottom: 8px;">
-                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code_2</span>
+                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code</span>
                             </button>
                             <button onclick="copyToClipboard('https://${hostName}/warpsub/${userID}?app=singbox#BPB-Warp', false)">
-                                Copy Sub<span class="material-symbols-outlined">subject</span>
+                                Copy Sub<span class="material-symbols-outlined">format_list_bulleted</span>
                             </button>
 						</td>
 					</tr>
                     <tr>
                         <td>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Clash Meta</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Clash Verge</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>v2rayN</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>FlClash</span>
                             </div>
                         </td>
                         <td>
                             <button onclick="openQR('https://${hostName}/warpsub/${userID}?app=clash#BPB-WARP', 'Warp Subscription')" style="margin-bottom: 8px;">
-                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code_2</span>
+                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code</span>
                             </button>
                             <button onclick="copyToClipboard('https://${hostName}/warpsub/${userID}?app=clash#BPB-WARP', false)">
-                                Copy Sub<span class="material-symbols-outlined">subject</span>
+                                Copy Sub<span class="material-symbols-outlined">format_list_bulleted</span>
                             </button>
                         </td>
                     </tr>
 				</table>
 			</div>
-            <h2>WARP PRO SUB <span class="material-symbols-outlined">link</span></h2>
+            <h2>WARP PRO SUB 🔗</h2>
 			<div class="table-container">
 				<table id="warp-pro-configs-table">
 					<tr>
@@ -2164,40 +2257,40 @@ async function renderHomePage (env, hostName, fragConfigs) {
 					<tr>
                         <td>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>NikaNG</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>MahsaNG</span>
                             </div>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>v2rayN-PRO</span>
                             </div>
                         </td>
 						<td>
                             <button onclick="openQR('https://${hostName}/warpsub/${userID}?app=nikang#BPB-Warp-Pro', 'Warp Pro Subscription')" style="margin-bottom: 8px;">
-                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code_2</span>
+                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code</span>
                             </button>
                             <button onclick="copyToClipboard('https://${hostName}/warpsub/${userID}?app=nikang#BPB-Warp-Pro', false)">
-                                Copy Sub<span class="material-symbols-outlined">subject</span>
+                                Copy Sub<span class="material-symbols-outlined">format_list_bulleted</span>
                             </button>
                         </td>
 					</tr>
 					<tr>
                         <td>
                             <div>
-                                <span class="material-symbols-outlined symbol">task_alt</span>
+                                <span class="material-symbols-outlined symbol">verified</span>
                                 <span>Hiddify</span>
                             </div>
                         </td>
 						<td>
                             <button onclick="openQR('sing-box://import-remote-profile?url=https://${hostName}/warpsub/${userID}?app=hiddify#BPB-Warp-Pro', 'Warp Pro Subscription')" style="margin-bottom: 8px;">
-                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code_2</span>
+                                QR Code&nbsp;<span class="material-symbols-outlined">qr_code</span>
                             </button>
                             <button onclick="copyToClipboard('https://${hostName}/warpsub/${userID}?app=hiddify#BPB-Warp-Pro', false)">
-                                Copy Sub<span class="material-symbols-outlined">subject</span>
+                                Copy Sub<span class="material-symbols-outlined">format_list_bulleted</span>
                             </button>
 						</td>
 					</tr>
@@ -2233,13 +2326,16 @@ async function renderHomePage (env, hostName, fragConfigs) {
             <hr>
             <div class="footer">
                 <i class="fa fa-github" style="font-size:36px; margin-right: 10px;"></i>
-                <a class="link" href="https://github.com/NiREvil/bia-pain-bache" target="_blank">Github</a>
+                <a class="link" href="https://github.com/bia-pain-bache/BPB-Worker-Panel" style="color: var(--color); text-decoration: underline;" target="_blank">Github</a>
                 <button id="openModalBtn" class="button">Change Password</button>
-                <button type="button" id="logout" style="background: none; margin: 0; border: none; cursor: pointer;">
+                <button type="button" id="logout" style="background: none; color: var(--color); margin: 0; border: none; cursor: pointer;">
                     <i class="fa fa-power-off fa-2x" aria-hidden="true"></i>
                 </button>
             </div>
         </div>
+        <button id="darkModeToggle" class="floating-button">
+            <i id="modeIcon" class="fa fa-2x fa-adjust" style="color: var(--background-color);" aria-hidden="true"></i>
+        </button>
         
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tweetnacl/1.0.3/nacl.min.js"></script>
@@ -2263,7 +2359,9 @@ async function renderHomePage (env, hostName, fragConfigs) {
             let modalQR = document.getElementById('myQRModal');
             let qrcodeContainer = document.getElementById('qrcode-container');
             let forcedPassChange = false;
+            const darkModeToggle = document.getElementById('darkModeToggle');
 
+            localStorage.getItem('darkMode') === 'enabled' && document.body.classList.add('dark-mode');
             ${isPassSet && !isWarpReady} && await getWarpConfigs();
                   
             const hasFormDataChanged = () => {
@@ -2313,14 +2411,14 @@ async function renderHomePage (env, hostName, fragConfigs) {
                 qrcodeContainer.lastElementChild.remove();
             });
             resetSettings.addEventListener('click', async () => {
-                const confirmReset = confirm('🥸 Are you sure you want to RESET ALL the panel settings??');
+                const confirmReset = confirm('⚠️ Are you sure?');
                 if(!confirmReset) return;
                 const formData = new FormData();
                 formData.append('resetSettings', 'true');
                 try {
                     document.body.style.cursor = 'wait';
                     const refreshButtonVal = refreshBtn.innerHTML;
-                    refreshBtn.innerHTML = 'Dont go anywhere. im on it';
+                    refreshBtn.innerHTML = '⌛ Loading...';
 
                     const response = await fetch('/panel', {
                         method: 'POST',
@@ -2331,7 +2429,7 @@ async function renderHomePage (env, hostName, fragConfigs) {
                     document.body.style.cursor = 'default';
                     refreshBtn.innerHTML = refreshButtonVal;
                     if (response.ok) {
-                        alert('Panel settings reset to default successfully ✔');
+                        alert('✅ Panel settings reset to default successfully! 😎');
                         window.location.reload(true);
                     } else {
                         const errorMessage = await response.text();
@@ -2348,6 +2446,14 @@ async function renderHomePage (env, hostName, fragConfigs) {
                     qrcodeContainer.lastElementChild.remove();
                 }
             }
+            darkModeToggle.addEventListener('click', () => {
+                const isDarkMode = document.body.classList.toggle('dark-mode');
+                if (isDarkMode) {
+                    localStorage.setItem('darkMode', 'enabled');
+                } else {
+                    localStorage.setItem('darkMode', 'disabled');                
+                }
+            });
 
             if (${!isPassSet}) {
                 forcedPassChange = true;
@@ -2375,7 +2481,7 @@ async function renderHomePage (env, hostName, fragConfigs) {
         const getWarpConfigs = async () => {
             const license = document.getElementById('warpPlusLicense').value;
             if (license !== warpPlusLicense) {
-                alert('✋🏿 First APPLY SETTINGS and then update Warp configs! ✋🏿');
+                alert('⚠️ First APPLY SETTINGS and then update Warp configs!');
                 return false;
             }
             const refreshBtn = document.getElementById('refreshBtn');
@@ -2387,7 +2493,7 @@ async function renderHomePage (env, hostName, fragConfigs) {
             try {
                 document.body.style.cursor = 'wait';
                 const refreshButtonVal = refreshBtn.innerHTML;
-                refreshBtn.innerHTML = 'Dont go anywhere. im on it';
+                refreshBtn.innerHTML = '⌛ Loading...';
 
                 const response = await fetch('/warp-keys', {
                     method: 'POST',
@@ -2401,7 +2507,7 @@ async function renderHomePage (env, hostName, fragConfigs) {
                 document.body.style.cursor = 'default';
                 refreshBtn.innerHTML = refreshButtonVal;
                 if (response.ok) {
-                    ${isWarpPlus} ? alert('Warp configs upgraded to PLUS successfully ✔') : alert('Warp configs updated successfully ✔');
+                    ${isWarpPlus} ? alert('✅ Warp configs upgraded to PLUS successfully! 😎') : alert('✅ Warp configs updated successfully! 😎');
                 } else {
                     const errorMessage = await response.text();
                     console.error(errorMessage, response.status);
@@ -2425,7 +2531,7 @@ async function renderHomePage (env, hostName, fragConfigs) {
             if (activePortsNo === 0) {
                 event.preventDefault();
                 event.target.checked = !event.target.checked;
-                alert("⛔ At least one port should be selected! ❌");
+                alert("⛔ At least one port should be selected! 🫤");
                 activePortsNo = 1;
                 defaultHttpsPorts.includes(event.target.name) && activeHttpsPortsNo++;
                 return false;
@@ -2434,7 +2540,7 @@ async function renderHomePage (env, hostName, fragConfigs) {
             if (activeHttpsPortsNo === 0) {
                 event.preventDefault();
                 event.target.checked = !event.target.checked;
-                alert("⛔ At least one TLS(https) port should be selected! ❌");
+                alert("⛔ At least one TLS(https) port should be selected! 🫤");
                 activeHttpsPortsNo = 1;
                 return false;
             }
@@ -2451,7 +2557,7 @@ async function renderHomePage (env, hostName, fragConfigs) {
             if (activeProtocols === 0) {
                 event.preventDefault();
                 event.target.checked = !event.target.checked;
-                alert("⛔ At least one Protocol should be selected! ❌");
+                alert("⛔ At least one Protocol should be selected! 🫤");
                 activeProtocols = 1;
                 return false;
             }
@@ -2484,7 +2590,7 @@ async function renderHomePage (env, hostName, fragConfigs) {
 			textarea.select();
 			document.execCommand('copy');
 			document.body.removeChild(textarea);
-			alert('📋 Copied and ready to paste:\\n\\n' +  value);
+			alert('📋 Copied to clipboard:\\n\\n' +  value);
 		}
 
         const applySettings = async (event, configForm) => {
@@ -2543,39 +2649,39 @@ async function renderHomePage (env, hostName, fragConfigs) {
             });
     
             if (invalidIPs.length) {
-                alert('⛔ Invalid IPs or Domains ✋🏿\\n\\n' + invalidIPs.map(ip => '✋🏿 ' + ip).join('\\n'));
+                alert('⛔ Invalid IPs or Domains 🫤\\n\\n' + invalidIPs.map(ip => '⚠️ ' + ip).join('\\n'));
                 return false;
             }
             
             if (invalidEndpoints.length) {
-                alert('⛔ Invalid endpoint ✋🏿\\n\\n' + invalidEndpoints.map(endpoint => '✋🏿 ' + endpoint).join('\\n'));
+                alert('⛔ Invalid endpoint 🫤\\n\\n' + invalidEndpoints.map(endpoint => '⚠️ ' + endpoint).join('\\n'));
                 return false;
             }
 
             if (lengthMin >= lengthMax || intervalMin > intervalMax || noiseCountMin > noiseCountMax || noiseSizeMin > noiseSizeMax || noiseDelayMin > noiseDelayMax) {
-                alert('⛔ Minimum should be smaller or equal to Maximum! ✋🏿');               
+                alert('⛔ Minimum should be smaller or equal to Maximum! 🫤');               
                 return false;
             }
 
             if (!(isVless && (hasSecurity && validSecurityType || !hasSecurity) && validTransmission) && !isSocksHttp && chainProxy) {
-                alert('⛔ Invalid Config! ✋🏿 \\n - The chain proxy should be VLESS, Socks or Http!\\n - VLESS transmission should be GRPC,WS or TCP\\n - VLESS security should be TLS,Reality or None\\n - socks or http should be like:\\n + (socks or http)://user:pass@host:port\\n + (socks or http)://host:port');               
+                alert('⛔ Invalid Config! 🫤 \\n - The chain proxy should be VLESS, Socks or Http!\\n - VLESS transmission should be GRPC,WS or TCP\\n - VLESS security should be TLS,Reality or None\\n - socks or http should be like:\\n + (socks or http)://user:pass@host:port\\n + (socks or http)://host:port');               
                 return false;
             }
 
             if (isVless && securityType === 'tls' && vlessPort !== '443') {
-                alert('⛔ VLESS TLS port can be only 443 to be used as a proxy chain! ✋🏿');               
+                alert('⛔ VLESS TLS port can be only 443 to be used as a proxy chain! 🫤');               
                 return false;
             }
 
             if (isCustomCdn && !(customCdnAddrs && customCdnHost && customCdnSni)) {
-                alert('⛔ All "Custom" fields should be filled! ✋🏿');               
+                alert('⛔ All "Custom" fields should be filled! 🫤');               
                 return false;
             }
 
             try {
                 document.body.style.cursor = 'wait';
                 const applyButtonVal = applyButton.value;
-                applyButton.value = 'Dont go anywhere. im on it';
+                applyButton.value = '⌛ Loading...';
 
                 const response = await fetch('/panel', {
                     method: 'POST',
@@ -2587,12 +2693,12 @@ async function renderHomePage (env, hostName, fragConfigs) {
                 applyButton.value = applyButtonVal;
 
                 if (response.ok) {
-                    alert('Signed sealed and Delivered ✔');
+                    alert('✅ Parameters applied successfully 😎');
                     window.location.reload(true);
                 } else {
                     const errorMessage = await response.text();
                     console.error(errorMessage, response.status);
-                    alert('⚠️ Session expired! Please login again ✋🏿');
+                    alert('⚠️ Session expired! Please login again.');
                     window.location.href = '/login';
                 }           
             } catch (error) {
@@ -2638,7 +2744,7 @@ async function renderHomePage (env, hostName, fragConfigs) {
             const isLongEnough = newPassword.length >= 8;
 
             if (!(hasCapitalLetter && hasNumber && isLongEnough)) {
-                passwordError.textContent = '✋🏿 Password must contain at least one capital letter, one number, and be at least 8 characters long.';
+                passwordError.textContent = '⚠️ Password must contain at least one capital letter, one number, and be at least 8 characters long.';
                 return false;
             }
                     
@@ -2655,13 +2761,13 @@ async function renderHomePage (env, hostName, fragConfigs) {
                 if (response.ok) {
                     modal.style.display = "none";
                     document.body.style.overflow = "";
-                    alert("Password changed successfully ✔");
+                    alert("✅ Password changed successfully! 👍");
                     window.location.href = '/login';
                 } else if (response.status === 401) {
                     const errorMessage = await response.text();
                     passwordError.textContent = '⚠️ ' + errorMessage;
                     console.error(errorMessage, response.status);
-                    alert('✋🏿 Session expired! Please login again.');
+                    alert('⚠️ Session expired! Please login again.');
                     window.location.href = '/login';
                 } else {
                     const errorMessage = await response.text();
@@ -2689,14 +2795,38 @@ async function renderLoginPage () {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Login</title>
     <style>
-
+        :root {
+            --color: black;
+            --primary-color: #09639f;
+            --header-color: #09639f; 
+            --background-color: #fff;
+            --form-background-color: #f9f9f9;
+            --lable-text-color: #333;
+            --h2-color: #3b3b3b;
+            --border-color: #ddd;
+            --input-background-color: white;
+            --header-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+        }
         html, body { height: 100%; margin: 0; }
         body {
             font-family: system-ui;
-            background-color: #f9f9f9;
+            background-color: var(--background-color);
             position: relative;
             overflow: hidden;
         }
+        body.dark-mode {
+            --color: white;
+            --primary-color: #09639F;
+            --header-color: #3498DB; 
+            --background-color: #121212;
+            --form-background-color: #121212;
+            --lable-text-color: #DFDFDF;
+            --h2-color: #D5D5D5;
+            --border-color: #353535;
+            --input-background-color: #252525;
+            --header-shadow: 2px 2px 4px rgba(255, 255, 255, 0.25);
+        }
+        html, body { height: 100%; margin: 0; }
         .container {
             position: absolute;
             top: 50%;
@@ -2704,11 +2834,11 @@ async function renderLoginPage () {
             transform: translate(-50%, -50%);
             width: 90%;
         }
-        h1 { font-size: 2.5rem; text-align: center; color: #09639f; margin: 0 auto 30px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25); }        
-        h2 {text-align: center;}
+        h1 { font-size: 2.5rem; text-align: center; color: var(--header-color); margin: 0 auto 30px; text-shadow: var(--header-shadow); }        
+        h2 { text-align: center; color: var(--h2-color) }
         .form-container {
-            background: #f9f9f9;
-            border: 1px solid #eaeaea;
+            background: var(--form-background-color);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             padding: 20px;
@@ -2720,15 +2850,16 @@ async function renderLoginPage () {
             padding-right: 20px;
             font-size: 110%;
             font-weight: 600;
-            color: #333;
+            color: var(--lable-text-color);
         }
         input[type="text"],
         input[type="password"] {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 5px;
-            color: #333;
+            color: var(--lable-text-color);
+            background-color: var(--input-background-color);
         }
         button {
             display: block;
@@ -2738,12 +2869,12 @@ async function renderLoginPage () {
             font-weight: 600;
             border: none;
             border-radius: 5px;
-            color: #fff;
-            background-color: #09639f;
+            color: white;
+            background-color: var(--primary-color);
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-        button:hover {background-color: #2980b9;}
+        button:hover { background-color: var(--primary-color); }
         @media only screen and (min-width: 768px) {
             .container { width: 30%; }
         }
@@ -2751,7 +2882,7 @@ async function renderLoginPage () {
     </head>
     <body>
         <div class="container">
-            <h1> 👻 <br><span style="font-size: smaller;">WELCOME TO BPB</span> </h2>
+            <h1>BPB Panel <span style="font-size: smaller;">${panelVersion}</span> 💦</h1>
             <div class="form-container">
                 <h2>User Login</h2>
                 <form id="loginForm">
@@ -2765,6 +2896,9 @@ async function renderLoginPage () {
             </div>
         </div>
     <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            localStorage.getItem('darkMode') === 'enabled' && document.body.classList.add('dark-mode');
+        });
         document.getElementById('loginForm').addEventListener('submit', async (event) => {
             event.preventDefault();
             const password = document.getElementById('password').value;
@@ -2781,7 +2915,7 @@ async function renderLoginPage () {
                 if (response.ok) {
                     window.location.href = '/panel';
                 } else {
-                    passwordError.textContent = '⚠️ Wrong Password! ✋🏿';
+                    passwordError.textContent = '⚠️ Wrong Password!';
                     const errorMessage = await response.text();
                     console.error('Login failed:', errorMessage);
                 }
@@ -2800,39 +2934,55 @@ function renderErrorPage (message, error, refer) {
     return `
     <!DOCTYPE html>
     <html lang="en">
-
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Error Page</title>
         <style>
-            body,
-            html {
+            :root {
+                --color: black;
+                --header-color: #09639f; 
+                --background-color: #fff;
+                --border-color: #ddd;
+                --header-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+            }
+            body, html {
                 height: 100%;
                 margin: 0;
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 font-family: system-ui;
+                color: var(--color);
+                background-color: var(--background-color);
             }
-            h1 { font-size: 2.5rem; text-align: center; color: #09639f; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25); }
+            body.dark-mode {
+                --color: white;
+                --header-color: #3498DB; 
+                --background-color: #121212;
+                --header-shadow: 2px 2px 4px rgba(255, 255, 255, 0.25);          
+            }
+            h1 { font-size: 2.5rem; text-align: center; color: var(--header-color); text-shadow: var(--header-shadow); }
             #error-container { text-align: center; }
         </style>
     </head>
-
     <body>
         <div id="error-container">
-            <h1>BpB Panel <span style="font-size: smaller;">${panelVersion}</span> 👻</h2>
+            <h1>BPB Panel <span style="font-size: smaller;">${panelVersion}</span> 💦</h1>
             <div id="error-message">
                 <h2>${message} ${refer 
-                    ? 'Please try again or refer to <a href="https://github.com/NiREvil/bia-pain-bache/blob/main/README.md">documents</a>' 
+                    ? 'Please try again or refer to <a href="https://github.com/bia-pain-bache/BPB-Worker-Panel/blob/main/README.md">documents</a>' 
                     : ''}
                 </h2>
-                <p><b>${error ? `⚠️ ${error}` : ''}</b></p>
+                <p><b>${error ? `⚠️ ${error.stack.toString()}` : ''}</b></p>
             </div>
         </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            localStorage.getItem('darkMode') === 'enabled' && document.body.classList.add('dark-mode');
+        });
+    </script>
     </body>
-
     </html>`;
 }
 
@@ -2929,7 +3079,7 @@ async function buildWarpOutbounds (env, client, proxySettings, warpConfigs) {
     warpEndpoints.split(',').forEach( (endpoint, index) => {
         
         if (client === 'xray' || client === 'nikang') {
-            let xrayOutbound = buildXrayWarpOutbound(`warp-${index + 1}`, warpIPv6, privateKey, publicKey, endpoint, reserved, '');
+            let xrayOutbound = buildXrayWarpOutbound(`prox-${index + 1}`, warpIPv6, privateKey, publicKey, endpoint, reserved, '');
             client === 'nikang' && Object.assign(xrayOutbound.settings, {
                 wnoise: nikaNGNoiseMode,
                 wnoisecount: fakePackets,
@@ -2942,7 +3092,7 @@ async function buildWarpOutbounds (env, client, proxySettings, warpConfigs) {
 
         if (client === 'singbox' || client === 'hiddify') {
             let singboxOutbound = buildSingboxWarpOutbound(
-                client === 'hiddify' ? `⚫️ Warp Pro ${index + 1} ` : `⚪️ Warp ${index + 1} `, 
+                client === 'hiddify' ? `💦 Warp Pro ${index + 1} 🇮🇷` : `💦 Warp ${index + 1} 🇮🇷`, 
                 warpIPv6, 
                 privateKey, 
                 publicKey, 
@@ -2962,7 +3112,7 @@ async function buildWarpOutbounds (env, client, proxySettings, warpConfigs) {
         }
 
         if (client === 'clash') {
-            let clashOutbound = buildClashWarpOutbound(`⚫️ Warp ${index + 1}`, warpIPv6, privateKey, publicKey, endpoint, reserved, '');
+            let clashOutbound = buildClashWarpOutbound(`💦 Warp ${index + 1} 🇮🇷`, warpIPv6, privateKey, publicKey, endpoint, reserved, '');
             warpOutbounds.push(clashOutbound);
         }
 
@@ -2997,13 +3147,13 @@ async function buildWoWOutbounds (env, client, proxySettings, warpConfigs) {
 
             if (client === 'xray' || client === 'nikang') {
                 let xrayOutbound = buildXrayWarpOutbound(
-                    i === 1 ? `warp-ir_${index + 1}` : `warp-out_${index + 1}`, 
+                    i === 1 ? `proxy` : `chain`,
                     warpIPv6, 
                     privateKey, 
                     publicKey, 
                     endpoint, 
                     reserved, 
-                    i === 1 ? '' : `warp-ir_${index + 1}`
+                    i === 1 ? '' : `proxy`
                 );
 
                 (client === 'nikang' && i === 1) && Object.assign(xrayOutbound.settings, {
@@ -3019,16 +3169,16 @@ async function buildWoWOutbounds (env, client, proxySettings, warpConfigs) {
             if (client === 'singbox' || client === 'hiddify') {
                 let singboxOutbound = buildSingboxWarpOutbound(
                     i === 1
-                    ? `⚫️ Nothing ${index + 1}` 
-                    : client === 'hiddify' 
-                        ? `⚪ WoW Pro  ${index + 1} ` 
-                        : `⚫️ WoW ${index + 1}` , 
+                        ? `proxy-${index + 1}` 
+                        : client === 'hiddify' 
+                            ? `💦 WoW Pro ${index + 1} 🌍` 
+                            : `💦 WoW ${index + 1} 🌍` , 
                     warpIPv6, 
                     privateKey, 
                     publicKey, 
                     endpoint, 
                     reserved, 
-                    i === 0 ? `⚫️ Nothing ${index + 1}` : ''
+                    i === 0 ? `proxy-${index + 1}` : ''
                 );
                 
                 (client === 'hiddify' && i === 1) && Object.assign(singboxOutbound, {
@@ -3043,13 +3193,13 @@ async function buildWoWOutbounds (env, client, proxySettings, warpConfigs) {
 
             if (client === 'clash') {
                 let clashOutbound = buildClashWarpOutbound(
-                    i === 1 ? `⚫️ Nothing ${index + 1}` : `⚪ WoW ${index + 1} `,
+                    i === 1 ? `proxy-${index + 1}` : `💦 WoW ${index + 1} 🌍`, 
                     warpIPv6, 
                     privateKey, 
                     publicKey, 
                     endpoint,
                     reserved, 
-                    i === 0 ? `⚫️ Nothing ${index + 1}` : ''
+                    i === 0 ? `proxy-${index + 1}` : ''
                 );
 
                 wowOutbounds.push(clashOutbound);
@@ -3129,6 +3279,7 @@ async function buildXrayDNSObject (remoteDNS, localDNS, blockAds, bypassIran, by
 }
 
 function buildXrayRoutingRules (localDNS, blockAds, bypassIran, blockPorn, bypassLAN, bypassChina, blockUDP443, isChain, isBalancer, isWorkerLess, isWarp) {
+    const isBypass = bypassIran || bypassLAN || bypassChina;
     let rules = [
         {
             inboundTag: [
@@ -3145,16 +3296,17 @@ function buildXrayRoutingRules (localDNS, blockAds, bypassIran, blockPorn, bypas
             port: "53",
             outboundTag: "dns-out",
             type: "field"
-        },
-        {
-            network: "udp",
-            port: "53",
-            outboundTag: "direct",
-            type: "field"
         }
     ];
 
-    if (bypassIran || bypassLAN || bypassChina) {
+    if (isChain || (localDNS !== 'localhost' && isBypass)) rules.push({
+        ip: [localDNS === 'localhost' ? '8.8.8.8' : localDNS],
+        port: "53",
+        outboundTag: "direct",
+        type: "field"
+    });
+
+    if (isBypass) {
         let ipRule = {
             ip: [],
             outboundTag: "direct",
@@ -3203,7 +3355,7 @@ function buildXrayRoutingRules (localDNS, blockAds, bypassIran, blockPorn, bypas
     } else  {
         rules.push({
             network: isWarp || isWorkerLess ? "tcp,udp" : "tcp",
-            outboundTag: isChain ? "out" : isWorkerLess ? "fragment" : "proxy",
+            outboundTag: isChain ? "chain" : isWorkerLess ? "fragment" : "proxy",
             type: "field"
         });
     }
@@ -3304,12 +3456,12 @@ function buildXrayWarpOutbound (remark, ipv6, privateKey, publicKey, endpoint, r
                 "172.16.0.2/32",
                 ipv6
             ],
-            mtu: 1330,
+            mtu: 1280,
             peers: [
                 {
                     endpoint: endpoint,
                     publicKey: publicKey,
-                    keepAlive: 10
+                    keepAlive: 5
                 }
             ],
             reserved: base64ToDecimal(reserved),
@@ -3362,7 +3514,7 @@ function buildXrayChainOutbound(chainProxyParams) {
                 xudpConcurrency: 16,
                 xudpProxyUDP443: "reject"
             },
-            tag: "out"
+            tag: "chain"
         };
     }
 
@@ -3400,7 +3552,7 @@ function buildXrayChainOutbound(chainProxyParams) {
                 tcpNoDelay: true
             }
         },
-        tag: "out"
+        tag: "chain"
     };
     
     if (security === 'tls') {
@@ -3469,16 +3621,17 @@ function buildXrayChainOutbound(chainProxyParams) {
     return proxyOutbound;
 }
 
-async function buildWorkerLessConfig(remoteDNS, localDNS, lengthMin,  lengthMax,  intervalMin,  intervalMax, blockAds, bypassIran, blockPorn, bypassLAN, bypassChina, blockUDP443) {
+async function buildXrayWorkerLessConfig(remoteDNS, localDNS, lengthMin,  lengthMax,  intervalMin,  intervalMax, fragmentPackets, blockAds, bypassIran, blockPorn, bypassLAN, bypassChina, blockUDP443) {
     let fakeOutbound = buildXrayVLESSOutbound('fake-outbound', 'google.com', 443, userID, 'google.com', '');
     delete fakeOutbound.streamSettings.sockopt;
     fakeOutbound.streamSettings.wsSettings.path = '/';
     let fragConfig = structuredClone(xrayConfigTemp);
-    fragConfig.remarks  = '🐓 WorkerLess Config'
+    fragConfig.remarks  = '💦 BPB F - WorkerLess ⭐'
     fragConfig.dns = await buildXrayDNSObject('https://cloudflare-dns.com/dns-query', localDNS, blockAds, bypassIran, bypassChina, bypassLAN, blockPorn, true);
     fragConfig.outbounds[0].settings.domainStrategy = 'UseIP';
     fragConfig.outbounds[0].settings.fragment.length = `${lengthMin}-${lengthMax}`;
     fragConfig.outbounds[0].settings.fragment.interval = `${intervalMin}-${intervalMax}`;
+    fragConfig.outbounds[0].settings.fragment.packets = fragmentPackets;
     fragConfig.outbounds = [
         {...fragConfig.outbounds[0]}, 
         {...fakeOutbound}, 
@@ -3493,18 +3646,17 @@ async function buildWorkerLessConfig(remoteDNS, localDNS, lengthMin,  lengthMax,
     return fragConfig;
 }
 
-async function getFragmentConfigs(env, hostName) {
+async function getXrayFragmentConfigs(env, hostName) {
     let Configs = [];
     let outbounds = [];
     let proxySettings = {};
     let chainProxy;
     let proxyIndex = 1;
-    const bestFragValues = ['1-3', '3-8', '5-10', '10-20', '20-30', '30-40', '40-50', 
-        '50-60', '60-70', '70-80', '80-90', '90-100', '50-100', '10-30', '20-40', '30-50',
-        '30-60', '40-60', '499', '50-70', '60-80', '1403', '70-90', '80-100', '100-200'
-      ]
+    const bestFragValues = ['10-20', '20-30', '30-40', '40-50', '50-60', '60-70', 
+                            '70-80', '80-90', '90-100', '10-30', '20-40', '30-50', 
+                            '40-60', '50-70', '60-80', '70-90', '80-100', '100-200'];
 
-      try {
+    try {
         proxySettings = await env.bpb.get("proxySettings", {type: 'json'});
     } catch (error) {
         console.log(error);
@@ -3532,7 +3684,8 @@ async function getFragmentConfigs(env, hostName) {
         ports,
         vlessConfigs,
         trojanConfigs,
-        bestVLESSTrojanInterval
+        bestVLESSTrojanInterval,
+        enableIPv6
     } = proxySettings;
 
     if (outProxy) {
@@ -3562,7 +3715,7 @@ async function getFragmentConfigs(env, hostName) {
     delete config.observatory;
     delete config.routing.balancers;
     let protocolNo = (vlessConfigs ? 1 : 0) + (trojanConfigs ? 1 : 0);
-    const Addresses = await getConfigAddresses(hostName, cleanIPs);
+    const Addresses = await getConfigAddresses(hostName, cleanIPs, enableIPv6);
     const domainAddressesRules = Addresses.filter(address => isDomain(address)).map(domain => `full:${domain}`);
     
     for (let i = 0; i < protocolNo; i++) {
@@ -3591,43 +3744,40 @@ async function getFragmentConfigs(env, hostName) {
                     isDomain(addr)
                         ? fragConfig.dns.servers[1].domains.push(`full:${addr}`)
                         : fragConfig.dns.servers.splice(1,1);
-                } else {
-                    fragConfig.outbounds = [{ ...outbound}, ...fragConfig.outbounds];
-                }
-    
-                Configs.push(fragConfig); 
-                outbound.tag = `prox_${proxyIndex}`;
-                
-                if (chainProxy) {
+
+                    outbound.tag = `prox-${proxyIndex}`;
                     let proxyOut = structuredClone(chainProxy);
-                    proxyOut.tag = `out_${proxyIndex}`;
-                    proxyOut.streamSettings.sockopt.dialerProxy = `prox_${proxyIndex}`;
+                    proxyOut.tag = `chain-${proxyIndex}`;
+                    proxyOut.streamSettings.sockopt.dialerProxy = `prox-${proxyIndex}`;
                     outbounds.push({...proxyOut}, {...outbound});
                 } else {
+                    fragConfig.outbounds = [{ ...outbound}, ...fragConfig.outbounds];
+                    outbound.tag = `prox-${proxyIndex}`;
                     outbounds.push({...outbound});
                 }
     
+                Configs.push(fragConfig);
                 proxyIndex++;
             }
         }
     }
     
     let bestPing = structuredClone(balancerConfig);
-    bestPing.remarks = '☆ Fragment Best Ping';
+    bestPing.remarks = '💦 BPB F - Best Ping 💥';
     bestPing.outbounds = [...outbounds, ...bestPing.outbounds];
     
     if (chainProxy) {
-        bestPing.observatory.subjectSelector = ["out"];
-        bestPing.routing.balancers[0].selector = ["out"];
+        bestPing.observatory.subjectSelector = ["chain"];
+        bestPing.routing.balancers[0].selector = ["chain"];
         bestPing.dns.servers[1].domains = domainAddressesRules;
     }
 
     let bestFragment = structuredClone(balancerConfig);
-    bestFragment.remarks = '★ Fragment Best Values';
+    bestFragment.remarks = '💦 BPB F - Best Fragment 😎';
     bestFragment.outbounds.splice(0,1);
     bestFragValues.forEach( (fragLength, index) => {
         bestFragment.outbounds.push({
-            tag: `frag_${index + 1}`,
+            tag: `frag-${index + 1}`,
             protocol: "freedom",
             settings: {
                 fragment: {
@@ -3637,7 +3787,7 @@ async function getFragmentConfigs(env, hostName) {
                 }
             },
             proxySettings: {
-                tag: chainProxy ? "out" : "proxy"
+                tag: chainProxy ? "chain" : "proxy"
             }
         });
     });
@@ -3647,7 +3797,7 @@ async function getFragmentConfigs(env, hostName) {
     if (chainProxy) {
         bestFragmentOutbounds[0].streamSettings.sockopt.dialerProxy = 'proxy';
         delete bestFragmentOutbounds[1].streamSettings.sockopt.dialerProxy;
-        bestFragmentOutbounds[0].tag = 'out';
+        bestFragmentOutbounds[0].tag = 'chain';
         bestFragmentOutbounds[1].tag = 'proxy';
         bestFragment.outbounds = [bestFragmentOutbounds[0], bestFragmentOutbounds[1], ...bestFragment.outbounds];
         bestFragment.dns.servers[1].domains = domainAddressesRules;
@@ -3659,7 +3809,7 @@ async function getFragmentConfigs(env, hostName) {
 
     bestFragment.observatory.subjectSelector = ["frag"];
     bestFragment.routing.balancers[0].selector = ["frag"];
-    const workerLessConfig = await buildWorkerLessConfig(remoteDNS, localDNS, lengthMin,  lengthMax,  intervalMin,  intervalMax, blockAds, bypassIran, blockPorn, bypassLAN, bypassChina, blockUDP443); 
+    const workerLessConfig = await buildXrayWorkerLessConfig(remoteDNS, localDNS, lengthMin,  lengthMax,  intervalMin,  intervalMax, fragmentPackets, blockAds, bypassIran, blockPorn, bypassLAN, bypassChina, blockUDP443); 
     Configs.push(bestPing, bestFragment, workerLessConfig);
 
     return Configs;
@@ -3688,15 +3838,15 @@ async function getXrayWarpConfigs (env, client) {
     xrayWarpConfig.dns = await buildXrayDNSObject('1.1.1.1', localDNS, blockAds, bypassIran, bypassChina, bypassLAN, blockPorn, false);
     xrayWarpConfig.routing.rules = buildXrayRoutingRules(localDNS, blockAds, bypassIran, blockPorn, bypassLAN, bypassChina, blockUDP443, false, false, false, true);
     xrayWarpConfig.outbounds.splice(0,1);
-    xrayWarpConfig.routing.rules[xrayWarpConfig.routing.rules.length - 1].outboundTag = 'warp';
+    xrayWarpConfig.routing.rules[xrayWarpConfig.routing.rules.length - 1].outboundTag = 'proxy';
     delete xrayWarpConfig.observatory;
     delete xrayWarpConfig.routing.balancers;
-    xrayWarpBestPing.remarks = client === 'nikang' ? '🔴 Warp Pro Best Ping' : '🔴 Warp Best Ping';
+    xrayWarpBestPing.remarks = client === 'nikang' ? '💦 Warp Pro Best Ping 🚀' : '💦 Warp Best Ping 🚀';
     xrayWarpBestPing.dns = await buildXrayDNSObject('1.1.1.1', localDNS, blockAds, bypassIran, bypassChina, bypassLAN, blockPorn, false);
     xrayWarpBestPing.routing.rules = buildXrayRoutingRules(localDNS, blockAds, bypassIran, blockPorn, bypassLAN, bypassChina, blockUDP443, false, true, false, true);
     xrayWarpBestPing.outbounds.splice(0,1);
-    xrayWarpBestPing.routing.balancers[0].selector = ['warp'];
-    xrayWarpBestPing.observatory.subjectSelector = ['warp'];
+    xrayWarpBestPing.routing.balancers[0].selector = ['prox'];
+    xrayWarpBestPing.observatory.subjectSelector = ['prox'];
     xrayWarpBestPing.observatory.probeInterval = `${bestWarpInterval}s`;
     xrayWoWConfigTemp.dns = await buildXrayDNSObject('1.1.1.1', localDNS, blockAds, bypassIran, bypassChina, bypassLAN, blockPorn, false);
     xrayWoWConfigTemp.routing.rules = buildXrayRoutingRules(localDNS, blockAds, bypassIran, blockPorn, bypassLAN, bypassChina, blockUDP443, false, false, false, true);
@@ -3707,25 +3857,33 @@ async function getXrayWarpConfigs (env, client) {
     xrayWarpOutbounds.forEach((outbound, index) => {
         xrayWarpConfigs.push({
             ...xrayWarpConfig,
-            remarks: client === 'nikang' ? `⚫️ Warp Pro ${index/2 + 1}` : `⚫️ Warp ${index/2 + 1}`,
-            outbounds: [{...outbound, tag: 'warp'}, ...xrayWarpConfig.outbounds]
+            remarks: client === 'nikang' ? `💦 Warp Pro ${index + 1} 🇮🇷` : `💦 Warp ${index + 1} 🇮🇷`,
+            outbounds: [{...outbound, tag: 'proxy'}, ...xrayWarpConfig.outbounds]
         });
     });
     
+    let proxyIndex = 1;
     xrayWoWOutbounds.forEach((outbound, index) => {
-        if (outbound.tag.includes('warp-out')) {
+        if (outbound.tag === 'chain') {
             let xrayWoWConfig = structuredClone(xrayWoWConfigTemp);
-            xrayWoWConfig.remarks = client === 'nikang' ? `⚪ WoW Pro ${index/2 + 1}` : `⚪️ WoW ${index/2 + 1}`;
-            xrayWoWConfig.outbounds = [{...xrayWoWOutbounds[index]}, {...xrayWoWOutbounds[index + 1]}, ...xrayWoWConfig.outbounds];
-            xrayWoWConfig.routing.rules[xrayWoWConfig.routing.rules.length - 1].outboundTag = outbound.tag;
+            const chainOutbound = structuredClone(outbound);
+            const proxyOutbound = structuredClone(xrayWoWOutbounds[index + 1]);
+            xrayWoWConfig.remarks = client === 'nikang' ? `💦 WoW Pro ${proxyIndex} 🌍` : `💦 WoW ${proxyIndex} 🌍`;
+            xrayWoWConfig.routing.rules[xrayWoWConfig.routing.rules.length - 1].outboundTag = 'chain';
+            xrayWoWConfig.outbounds = [ chainOutbound, proxyOutbound, ...xrayWoWConfig.outbounds ];
             xrayWarpConfigs.push(xrayWoWConfig);
+            outbound.tag = `chain-${proxyIndex}`;
+            outbound.streamSettings.sockopt.dialerProxy = `prox-${proxyIndex}`;
+        } else {
+            outbound.tag = `prox-${proxyIndex}`;
+            proxyIndex++;
         }
     });
 
     let xrayWoWBestPing = structuredClone(xrayWarpBestPing);
-    xrayWoWBestPing.remarks = client === 'nikang' ? '🔴 WoW Pro Best Ping' : '🔴 WoW Best Ping';
-    xrayWoWBestPing.routing.balancers[0].selector = ['warp-out'];
-    xrayWoWBestPing.observatory.subjectSelector = ['warp-out'];
+    xrayWoWBestPing.remarks = client === 'nikang' ? '💦 WoW Pro Best Ping 🚀' : '💦 WoW Best Ping 🚀';
+    xrayWoWBestPing.routing.balancers[0].selector = ['chain'];
+    xrayWoWBestPing.observatory.subjectSelector = ['chain'];
     xrayWarpBestPing.outbounds = [...xrayWarpOutbounds, ...xrayWarpBestPing.outbounds];
     xrayWoWBestPing.outbounds = [...xrayWoWOutbounds, ...xrayWoWBestPing.outbounds];
     xrayWarpConfigs.push(xrayWarpBestPing, xrayWoWBestPing);
@@ -3787,7 +3945,7 @@ function buildClashRoutingRules (localDNS, blockAds, bypassIran, bypassChina, bl
     !isWarp && rules.push('NETWORK,udp,REJECT');
     blockAds && rules.push('GEOSITE,category-ads-all,REJECT', 'GEOSITE,category-ads-ir,REJECT');
     blockPorn && rules.push('GEOSITE,category-porn,REJECT');
-    rules.push('MATCH,★ Selector');
+    rules.push('MATCH,✅ Selector');
 
     return rules;
 }
@@ -3813,7 +3971,7 @@ function buildClashVLESSOutbound (remark, address, port, uuid, host, sni, path) 
 
     if (tls) {
         Object.assign(outbound, {
-            "servername": randomUpperCase(sni),
+            "servername": sni,
             "alpn": ["h2", "http/1.1"],
             "client-fingerprint": "random"
         });
@@ -3837,7 +3995,7 @@ function buildClashTrojanOutbound (remark, address, port, password, host, sni, p
             "max-early-data": 2560,
             "early-data-header-name": "Sec-WebSocket-Protocol"
         },
-        "sni": randomUpperCase(sni),
+        "sni": sni,
         "alpn": ["h2", "http/1.1"],
         "client-fingerprint": "random"
     };
@@ -3885,7 +4043,7 @@ function buildClashChainOutbound(chainProxyParams) {
 
     const { hostName, port, uuid, flow, security, type, sni, fp, alpn, pbk, sid, spx, headerType, host, path, authority, serviceName, mode } = chainProxyParams;
     let chainOutbound = {
-        "name": "🔴 Chain Best Ping",
+        "name": "💦 Chain Best Ping 💥",
         "type": "vless",
         "server": hostName,
         "port": +port,
@@ -3893,7 +4051,7 @@ function buildClashChainOutbound(chainProxyParams) {
         "uuid": uuid,
         "flow": flow,
         "network": type,
-        "dialer-proxy": "🔴 Best Ping"
+        "dialer-proxy": "💦 Best Ping 💥"
     };
 
     if (security === 'tls') {
@@ -3951,11 +4109,7 @@ function buildClashChainOutbound(chainProxyParams) {
 async function getClashConfig (env, hostName, isWarp) {
     let proxySettings = {};
     let warpConfigs = [];
-    let remark, path, selectorProxies;
-    let outbounds = [];
-    let warpOutboundsRemarks = [];
-    let wowOutboundRemarks = [];
-    let outboundsRemarks = [];
+    let remark, path;
     let chainProxyOutbound;
 
     try {
@@ -3986,19 +4140,19 @@ async function getClashConfig (env, hostName, isWarp) {
         customCdnHost,
         customCdnSni,
         bestVLESSTrojanInterval,
-        bestWarpInterval
+        bestWarpInterval,
+        enableIPv6
     } = proxySettings; 
 
     let config = structuredClone(clashConfigTemp);
     config.dns = await buildClashDNS(isWarp ? '1.1.1.1' : remoteDNS, localDNS, blockAds, bypassIran, blockPorn, bypassLAN, bypassChina);
     config.rules = buildClashRoutingRules(localDNS, blockAds, bypassIran, bypassChina, blockPorn, blockUDP443, bypassLAN, isWarp);
-    const Addresses = (await getConfigAddresses(hostName, cleanIPs));
+    const Addresses = await getConfigAddresses(hostName, cleanIPs, enableIPv6);
     const customCdnAddresses = customCdnAddrs ? customCdnAddrs.split(',') : [];
     const totalAddresses = [...Addresses, ...customCdnAddresses];
 
     if (outProxy && !isWarp) {
-        const proxyParams = JSON.parse(outProxyParams);
-        
+        const proxyParams = JSON.parse(outProxyParams);        
         try {
             chainProxyOutbound = buildClashChainOutbound(proxyParams);
         } catch (error) {
@@ -4013,18 +4167,28 @@ async function getClashConfig (env, hostName, isWarp) {
     }
 
     if (isWarp) {
+        config['proxy-groups'][0].proxies = ['💦 Warp Best Ping 🚀', '💦 WoW Best Ping 🚀'];
+        config['proxy-groups'][1].name = '💦 Warp Best Ping 🚀';
         config['proxy-groups'][1].interval = +bestWarpInterval;
+        config['proxy-groups'].splice(2, 0, structuredClone(config['proxy-groups'][1]));
+        config['proxy-groups'][2].name = '💦 WoW Best Ping 🚀';
         const clashWarpOutbounds = await buildWarpOutbounds(env, 'clash', proxySettings, warpConfigs);
         const clashWOWpOutbounds = await buildWoWOutbounds(env, 'clash', proxySettings, warpConfigs);
-        outbounds.push(...clashWarpOutbounds, ...clashWOWpOutbounds);
+        config.proxies = [...clashWarpOutbounds, ...clashWOWpOutbounds];
         clashWarpOutbounds.forEach(outbound => {
-            warpOutboundsRemarks.push(outbound["name"]);
+            config['proxy-groups'][0].proxies.push(outbound["name"]);
+            config['proxy-groups'][1].proxies.push(outbound["name"]);
+
         });
         
         clashWOWpOutbounds.forEach(outbound => {
-            outbound["name"].includes('WoW') && wowOutboundRemarks.push(outbound["name"]);
+            outbound["name"].includes('WoW') && config['proxy-groups'][0].proxies.push(outbound["name"]);
+            outbound["name"].includes('WoW') && config['proxy-groups'][2].proxies.push(outbound["name"]);
         });
+
     } else {
+        config['proxy-groups'][0].proxies = ['💦 Best Ping 💥'];
+        config['proxy-groups'][1].name = '💦 Best Ping 💥';
         config['proxy-groups'][1].interval = +bestVLESSTrojanInterval;
     }
 
@@ -4037,8 +4201,7 @@ async function getClashConfig (env, hostName, isWarp) {
                 let VLESSOutbound, TrojanOutbound;
                 const isCustomAddr = index > Addresses.length - 1;
                 const configType = isCustomAddr ? 'C' : '';
-                const configIndex = isCustomAddr ? index - Addresses.length + 1 : index;
-                const sni = isCustomAddr ? customCdnSni : hostName;
+                const sni = isCustomAddr ? customCdnSni : randomUpperCase(hostName);
                 const host = isCustomAddr ? customCdnHost : hostName;
 
                 if (vlessConfigs && i === 0) {
@@ -4054,8 +4217,9 @@ async function getClashConfig (env, hostName, isWarp) {
                         sni, 
                         path
                     );
-                    outbounds.push(VLESSOutbound);
-                    outboundsRemarks.push(remark);
+                    config.proxies.push(VLESSOutbound);
+                    config['proxy-groups'][0].proxies.push(remark);
+                    config['proxy-groups'][1].proxies.push(remark);
                 }
                 
                 if (trojanConfigs && !VLESSOutbound && defaultHttpsPorts.includes(port)) {
@@ -4071,39 +4235,22 @@ async function getClashConfig (env, hostName, isWarp) {
                         sni, 
                         path
                     );
-                    outbounds.push(TrojanOutbound);
-                    outboundsRemarks.push(remark);
+                    config.proxies.push(TrojanOutbound);
+                    config['proxy-groups'][0].proxies.push(remark);
+                    config['proxy-groups'][1].proxies.push(remark);
                 }
 
                 if (chainProxyOutbound && (TrojanOutbound || VLESSOutbound)) {
                     let chain = structuredClone(chainProxyOutbound);
                     chain['name'] = remark;
                     chain['dialer-proxy'] = `proxy-${proxyIndex}`;
-                    outbounds.push(chain);
+                    config.proxies.push(chain);
                 }
 
                 proxyIndex++;
             });
         });
     }
-
-
-    config.proxies = outbounds;
-    config['proxy-groups'][0].proxies = isWarp
-        ? ['🔴 Warp Best Ping', '🔴 WoW Best Ping', ...warpOutboundsRemarks, ...wowOutboundRemarks ]
-        : ['🔴 Best Ping', ...outboundsRemarks ];
-
-    config['proxy-groups'][1].proxies = isWarp ? warpOutboundsRemarks : outboundsRemarks;
-    config['proxy-groups'][1].name = isWarp ? `🔴 Warp Best Ping`: `🔴 Best Ping`,
-
-    isWarp && config["proxy-groups"].push({
-        "name": "🔴 WoW Best Ping",
-        "type": "url-test",
-        "url": "https://www.gstatic.com/generate_204",
-        "interval": +bestWarpInterval,
-        "tolerance": 50,
-        "proxies": wowOutboundRemarks
-    });
 
     return config;
 }
@@ -4315,7 +4462,7 @@ function buildSingboxVLESSOutbound (remark, address, port, uuid, host, sni, path
             alpn: "http/1.1",
             enabled: true,
             insecure: false,
-            server_name: randomUpperCase(sni),
+            server_name: sni,
             utls: {
                 enabled: true,
                 fingerprint: "randomized"
@@ -4354,7 +4501,7 @@ function buildSingboxTrojanOutbound (remark, address, port, password, host, sni,
             alpn: "http/1.1",
             enabled: true,
             insecure: false,
-            server_name: randomUpperCase(sni),
+            server_name: sni,
             utls: {
                 enabled: true,
                 fingerprint: "randomized"
@@ -4535,7 +4682,8 @@ async function getSingboxConfig (env, hostName, client, isWarp, isFragment) {
         customCdnHost,
         customCdnSni,
         bestVLESSTrojanInterval,
-        bestWarpInterval
+        bestWarpInterval,
+        enableIPv6
     } = proxySettings;
 
     let config = structuredClone(singboxConfigTemp);
@@ -4559,7 +4707,7 @@ async function getSingboxConfig (env, hostName, client, isWarp, isFragment) {
     }
 
     let outbound, remark, path;
-    const Addresses = await getConfigAddresses(hostName, cleanIPs);
+    const Addresses = await getConfigAddresses(hostName, cleanIPs, enableIPv6);
     const customCdnAddresses = customCdnAddrs ? customCdnAddrs.split(',') : [];
     const totalAddresses = [...Addresses, ...customCdnAddresses];
     config.dns.servers[0].address = remoteDNS;
@@ -4570,15 +4718,15 @@ async function getSingboxConfig (env, hostName, client, isWarp, isFragment) {
         const WOWOutbounds = await buildWoWOutbounds(env, client, proxySettings, warpConfigs);
         config.dns.servers[0].address = '1.1.1.1';
         config.outbounds[0].outbounds = client === 'hiddify'
-            ? ["🔴 Warp Pro Best Ping", "🔴 WoW Pro Best Ping"]
-            : ["🔴 Warp Best Ping", "🔴 WoW Best Ping"];
+            ? ["💦 Warp Pro Best Ping 🚀", "💦 WoW Pro Best Ping 🚀"]
+            : ["💦 Warp Best Ping 🚀", "💦 WoW Best Ping 🚀"];
         config.outbounds.splice(2, 0, structuredClone(config.outbounds[1]));
         config.outbounds[1].tag = client === 'hiddify' 
-            ? "🔴 Warp Pro Best Ping"
-            : "🔴 Warp Best Ping";
+            ? "💦 Warp Pro Best Ping 🚀"
+            : "💦 Warp Best Ping 🚀";
         config.outbounds[2].tag = client === 'hiddify'
-            ? "🔴 WoW Pro Best Ping"
-            : "🔴 WoW Best Ping";
+            ? "💦 WoW Pro Best Ping 🚀"
+            : "💦 WoW Best Ping 🚀";
         config.outbounds.push(...warpOutbounds, ...WOWOutbounds);
         warpOutbounds.forEach(outbound => {
             config.outbounds[0].outbounds.push(outbound.tag);
@@ -4609,8 +4757,7 @@ async function getSingboxConfig (env, hostName, client, isWarp, isFragment) {
                 let VLESSOutbound, TrojanOutbound;
                 const isCustomAddr = index > Addresses.length - 1;
                 const configType = isCustomAddr ? 'C' : isFragment ? 'F' : '';
-                const configIndex = isCustomAddr ? index - Addresses.length + 1 : index;
-                const sni = isCustomAddr ? customCdnSni : hostName;
+                const sni = isCustomAddr ? customCdnSni : randomUpperCase(hostName);
                 const host = isCustomAddr ? customCdnHost : hostName;
          
                 if (vlessConfigs && i === 0) {
@@ -4690,8 +4837,8 @@ async function getNormalConfigs(env, hostName, client) {
         throw new Error(`An error occurred while getting normal configs - ${error}`);
     }
 
-    const { cleanIPs, proxyIP, ports, vlessConfigs, trojanConfigs , outProxy, customCdnAddrs, customCdnHost, customCdnSni} = proxySettings;
-    const Addresses = await getConfigAddresses(hostName, cleanIPs);
+    const { cleanIPs, proxyIP, ports, vlessConfigs, trojanConfigs , outProxy, customCdnAddrs, customCdnHost, customCdnSni, enableIPv6} = proxySettings;
+    const Addresses = await getConfigAddresses(hostName, cleanIPs, enableIPv6);
     const customCdnAddresses = customCdnAddrs ? customCdnAddrs.split(',') : [];
     const totalAddresses = [...Addresses, ...customCdnAddresses];
     const alpn = client === 'singbox' ? 'http/1.1' : 'h2,http/1.1';
@@ -4703,13 +4850,12 @@ async function getNormalConfigs(env, hostName, client) {
     ports.forEach(port => {
         totalAddresses.forEach((addr, index) => {
             const isCustomAddr = index > Addresses.length - 1;
-            const configType = isCustomAddr ? ' ⇢CDN' : '';
-            const sni = randomUpperCase(isCustomAddr ? customCdnSni : hostName);
+            const configType = isCustomAddr ? 'C' : '';
+            const sni = isCustomAddr ? customCdnSni : randomUpperCase(hostName);
             const host = isCustomAddr ? customCdnHost : hostName;
             const path = `${getRandomPath(16)}${proxyIP ? `/${encodeURIComponent(btoa(proxyIP))}` : ''}${earlyData}`;
-            const configIndex = isCustomAddr ? index - Addresses.length + 1 : index;
             const vlessRemark = encodeURIComponent(generateRemark(proxyIndex, port, addr, cleanIPs, 'VLESS', configType));
-            const trojanRemark = encodeURIComponent(generateRemark(proxyIndex + totalAddresses.length * ports.length, port, addr, cleanIPs, 'TROJAN', configType));
+            const trojanRemark = encodeURIComponent(generateRemark(proxyIndex + totalAddresses.length * ports.length, port, addr, cleanIPs, 'Trojan', configType));
             const tlsFields = defaultHttpsPorts.includes(port) 
                 ? `&security=tls&sni=${sni}&fp=randomized&alpn=${alpn}`
                 : '&security=none';
@@ -4727,7 +4873,7 @@ async function getNormalConfigs(env, hostName, client) {
     });
 
     if (outProxy) {
-        let chainRemark = `#${encodeURIComponent('★ Chain proxy ')}`;
+        let chainRemark = `#${encodeURIComponent('💦 Chain proxy 🔗')}`;
         if (outProxy.startsWith('socks') || outProxy.startsWith('http')) {
             const regex = /^(?:socks|http):\/\/([^@]+)@/;
             const isUserPass = outProxy.match(regex);
@@ -4878,7 +5024,7 @@ const singboxConfigTemp = {
                 address: "",
                 address_resolver: "dns-direct",
                 strategy: "prefer_ipv4",
-                detour: "🔴 Best Ping",
+                detour: "proxy",
                 tag: "dns-remote"
             },
             {
@@ -4927,13 +5073,13 @@ const singboxConfigTemp = {
     ],
     outbounds: [
         {
-            type: "★ Selector",
+            type: "selector",
             tag: "proxy",
-            outbounds: ["🔴 Best Ping"]
+            outbounds: ["💦 Best Ping 💥"]
         },
         {
             type: "urltest",
-            tag: "🔴 Best Ping",
+            tag: "💦 Best Ping 💥",
             outbounds: [],
             url: "https://www.gstatic.com/generate_204",
             interval: "30s",
@@ -5021,7 +5167,7 @@ const clashConfigTemp = {
     "proxies": [],
     "proxy-groups": [
         {
-            "name": "★ Selector",
+            "name": "✅ Selector",
             "type": "select",
             "proxies": []
         },
